@@ -22,3 +22,5 @@ spring:
   cloud:
     openfeign:
       lazy-attributes-resolution: true
+  jwt:
+    secret: ${jwt.secret}
