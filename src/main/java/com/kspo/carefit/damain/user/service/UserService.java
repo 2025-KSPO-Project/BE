@@ -4,15 +4,54 @@ import com.kspo.carefit.base.config.exception.BaseExceptionEnum;
 import com.kspo.carefit.base.config.exception.domain.BaseException;
 import com.kspo.carefit.damain.user.entity.User;
 import com.kspo.carefit.damain.user.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
     private final UserRepository userRepository;
 
-    public UserService(UserRepository userRepository){
-        this.userRepository = userRepository;
+
+    public User checkExistingUser(String username,String email,String name){
+
+        User user = userRepository
+                .findByUsername(username)
+                .orElseGet(()-> { // 새로운 회원일 경우 생성
+                    return initUser(username,email,name);
+                });
+
+        updateUser(user,username,email); // 기존 회원의 경우 업데이트
+
+        return user;
+    }
+
+    // 유저의 기본필드 세팅 후 리턴하는 메소드
+    private User initUser(String username,String email,String name){
+
+        return User.builder()
+                .username(username)
+                .email(email)
+                .role("ROLE_USER")
+                .build();
+    }
+
+
+    /*
+    기본 CRUD 메소드 모음
+     */
+
+    // 유저 정보 ( username , email ) 을 업데이트하는 메소드
+    private void updateUser(User user,String username,String email){
+
+        user.setUsername(username);
+        user.setEmail(email);
+    }
+
+    // 유저를 DB에 저장하는 메소드
+    public void saveUser(User user){
+        userRepository.save(user);
     }
 
     // 유저를 username 으로 찾는 메소드
