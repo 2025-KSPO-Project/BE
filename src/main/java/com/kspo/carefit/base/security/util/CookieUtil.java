@@ -1,5 +1,7 @@
 package com.kspo.carefit.base.security.util;
 
+import com.kspo.carefit.base.config.exception.BaseExceptionEnum;
+import com.kspo.carefit.base.config.exception.domain.BaseException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -21,22 +23,6 @@ public class CookieUtil {
         return cookie;
     }
 
-    // 쿠키에서 Authorization 을 가져오는 메소드
-    public String parseAuthorization(Cookie[] cookies){
-
-        String authorization = null;
-
-        for(Cookie cookie : cookies){
-
-            if(cookie.getName().equals("Authorization")){
-
-                authorization = cookie.getValue();
-                return authorization;
-            }
-        }
-
-        return null;
-    }
 
     // 쿠키에서 refresh 토큰을 추출하는 메소드
     public String findRefreshFromCookie(HttpServletRequest request){
@@ -51,7 +37,7 @@ public class CookieUtil {
             }
         }
 
-        return refresh;
+        throw new BaseException(BaseExceptionEnum.REFRESH_TOKEN_EXPIRED);
     }
 
     // 쿠키를 비우는 메소드
