@@ -12,15 +12,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.time.Instant;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Objects;
@@ -35,6 +34,7 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private final OAuth2AuthorizedClientService oAuth2AuthorizedClientService;
     private final UserOauth2facade userOauth2facade;
 
+    @Transactional
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
@@ -53,11 +53,16 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
                 oAuth2AuthenticationToken.getName()
         );
 
+        String socialRefresh = Objects.requireNonNull(client // refresh 토큰 추출
+                .getRefreshToken())
+                .getTokenValue();
+
         UserOauth2Token tokenEntity = userOauth2facade
                 .findTokenEntityByUsername(oAuth2User
                         .getUsername());
 
-        updateTokens(tokenEntity,client); // access 토큰 외 정보를 DB에 저장
+        userOauth2facade.addRefreshToken(tokenEntity,socialRefresh); // access 토큰 외 정보필드 추가
+        userOauth2facade.updateTokenEntity(tokenEntity); // 토큰객체 업데이트 하기
 
         // 서비스 자체 토큰 발급
         String serviceAccessToken = jwtUtil.createJwt("access",username,role,24*60*60*1000L);
@@ -71,7 +76,6 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         response.sendRedirect("http://localhost:3000/");
 
     }
-
 
 
     /*
@@ -88,25 +92,5 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         return authority.getAuthority();
     }
 
-    // OAuth2AuthorizedClient 로 부터 refresh 토큰 및 파기기한을 추출한 뒤 , DB에 업데이트 하는 메소드
-    private void updateTokens(UserOauth2Token tokenEntity,
-                             OAuth2AuthorizedClient client){
 
-        String socialRefreshToken = Objects.requireNonNull(client
-                        .getRefreshToken())
-                .getTokenValue();
-
-        Instant refreshExpiration = client
-                .getRefreshToken()
-                .getExpiresAt();
-
-        Instant accessExpiration = client
-                .getAccessToken()
-                .getExpiresAt();
-
-        tokenEntity.updateTokens(socialRefreshToken,
-                refreshExpiration,
-                accessExpiration);
-
-    }
 }

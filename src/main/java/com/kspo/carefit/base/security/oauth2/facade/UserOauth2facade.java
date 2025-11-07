@@ -28,4 +28,17 @@ public class UserOauth2facade {
         return userOauth2TokenService.revokeToken(id);
 
     }
+
+    public void addRefreshToken(UserOauth2Token tokenEntity,String refresh){
+
+        userOauth2TokenService
+                .addRefreshToken(tokenEntity,refresh);
+
+    }
+
+    public void updateTokenEntity(UserOauth2Token tokenEntity){
+
+        userOauth2TokenService.updateTokenEntity(tokenEntity);
+
+    }
 }

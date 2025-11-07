@@ -51,13 +51,12 @@ public class UserOauth2TokenService {
     기본 CRUD 메소드 모음
      */
 
-    // access 토큰을 통해 토큰 객체를 찾는 메소드
-    private UserOauth2Token findByAccessToken(String accessToken){
-        return userOauth2TokenRepository
-                .findByAccessToken(accessToken)
-                .orElseThrow(()-> new BaseException(BaseExceptionEnum
-                        .ENTITY_NOT_FOUND));
+    public void updateTokenEntity(UserOauth2Token tokenEntity){
+
+        userOauth2TokenRepository.save(tokenEntity);
+
     }
+
 
     // user_id를 통해 토큰 객체를 찾는 메소드
     public UserOauth2Token findByUserId(Long userId){
@@ -70,5 +69,16 @@ public class UserOauth2TokenService {
 
     public Optional<UserOauth2Token> findByUserIdWithOptional(Long userId){
         return userOauth2TokenRepository.findTokenByUserId(userId);
+    }
+
+    public void addRefreshToken(UserOauth2Token tokenEntity,
+                                String refreshToken){
+
+        tokenEntity.setRefreshTokenExpiresAt(Instant // refresh 토큰 만료기간 설정
+                .now()
+                .plusMillis(365*24*60*60*1000L));
+
+        tokenEntity.setRefreshToken(refreshToken); // refresh 토큰 설정
+
     }
 }
