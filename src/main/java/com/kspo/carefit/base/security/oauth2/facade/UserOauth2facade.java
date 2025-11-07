@@ -22,4 +22,10 @@ public class UserOauth2facade {
                         .getId());
 
     }
+
+    public boolean revokeToken(Long id){
+
+        return userOauth2TokenService.revokeToken(id);
+
+    }
 }

@@ -1,5 +1,6 @@
 package com.kspo.carefit.base.security.oauth2.service;
 
+import com.kspo.carefit.base.client.OAuth2Client;
 import com.kspo.carefit.base.config.exception.BaseExceptionEnum;
 import com.kspo.carefit.base.config.exception.domain.BaseException;
 import com.kspo.carefit.base.security.oauth2.entity.UserOauth2Token;
@@ -7,6 +8,7 @@ import com.kspo.carefit.base.security.oauth2.repository.UserOauth2TokenRepositor
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.Optional;
 
 @Service
@@ -14,6 +16,7 @@ import java.util.Optional;
 public class UserOauth2TokenService {
 
     private final UserOauth2TokenRepository userOauth2TokenRepository;
+    private final OAuth2Client oAuth2Client;
 
     // 토큰을 조회한 후 , 업데이트 후 UserOauth2Token 객체를 리턴하는 매소드
     public UserOauth2Token addSocialAccessToken(String accessToken){
@@ -32,7 +35,15 @@ public class UserOauth2TokenService {
         return UserOauth2Token.builder()
                 .provider("naver")
                 .accessToken(accessToken)
+                .accessTokenExpiresAt(Instant.now().plusMillis(24 * 60 * 60 * 1000L))
                 .build();
+    }
+
+    // 소셜 로그인 토큰을 파기하는 메소드
+    public boolean revokeToken(Long id){
+
+        UserOauth2Token userOauth2Token = findByUserId(id);
+        return oAuth2Client.revokeToken(userOauth2Token.getAccessToken());
     }
 
 
@@ -55,5 +66,9 @@ public class UserOauth2TokenService {
                 .orElseThrow(()-> new BaseException(BaseExceptionEnum
                         .ENTITY_NOT_FOUND));
 
+    }
+
+    public Optional<UserOauth2Token> findByUserIdWithOptional(Long userId){
+        return userOauth2TokenRepository.findTokenByUserId(userId);
     }
 }
