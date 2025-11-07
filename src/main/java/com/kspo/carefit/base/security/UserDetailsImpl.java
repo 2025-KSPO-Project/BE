@@ -1,6 +1,6 @@
 package com.kspo.carefit.base.security;
 
-import com.kspo.carefit.base.security.service.UserDetailsServiceImpl;
+
 import com.kspo.carefit.damain.user.entity.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,7 +19,7 @@ public class UserDetailsImpl implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(
-                ()-> user.getRole().name()
+                user::getRole
         );
     }
 
