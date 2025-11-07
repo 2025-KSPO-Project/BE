@@ -1,8 +1,10 @@
 package com.kspo.carefit.base.security.filter;
 
 import com.kspo.carefit.base.security.UserDetailsImpl;
+import com.kspo.carefit.base.security.util.CookieUtil;
 import com.kspo.carefit.base.security.util.JwtUtil;
 import com.kspo.carefit.damain.user.service.UserService;
+import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -12,12 +14,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
 @RequiredArgsConstructor
 @Slf4j
+@Component
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
@@ -30,14 +34,18 @@ public class JwtFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        String authorization = extractToken(request);
+        String authorization = extractToken(request.getHeader("Authorization"));
 
         // 요청에 대한 토큰 및 URI 검사
-        if (checkUri(request.getRequestURI())&&
-                checkToken(authorization)) {
+        if (checkUri(request.getRequestURI())) { // 토큰 파기 , null , 카테고리 검사
 
-            log.info("JWT Token Invalidated");
             filterChain.doFilter(request, response);
+            return;
+        }
+
+        if(checkToken(authorization)){
+
+            filterChain.doFilter(request,response);
             return;
         }
 
@@ -53,27 +61,18 @@ public class JwtFilter extends OncePerRequestFilter {
     내부 유틸 메소드
      */
 
-    // 토큰에서 Bearer 를 제거하는 메소드
-    private String extractToken(HttpServletRequest request) {
-        String header = request.getHeader("Authorization");
-        if (header == null || !header.startsWith("Bearer ")) {
-            return null;
-        }
-        return header.substring(7);
-    }
-
     // 로그인 , OAuth2 관련 URI 여부를 체크하는 메소드
     private boolean checkUri(String uri){
 
-        return uri.matches("^/login(?:/.*)?$") ||
-                uri.matches("^/oauth2(?:/.*)?$");
+        return uri.matches("^\\/login(?:\\/.*)?$") ||
+                uri.matches("^\\/oauth2(?:\\/.*)?$");
     }
 
     // 토큰 이상 여부를 체크하는 메소드
     private boolean checkToken(String token){
 
-        return token == null || // 토큰이 빈 경우
-                jwtUtil.isExpired(token) || // 토큰이 파기된 경우
+        return (token == null) || // 토큰이 빈 경우
+                (jwtUtil.isExpired(token)) || // 토큰이 파기된 경우
                 !(jwtUtil.getCategory(token).equals("access")); // 토큰의 카테고리가 맞지 않은경우
     }
 
@@ -81,8 +80,6 @@ public class JwtFilter extends OncePerRequestFilter {
     private Authentication makeAuthentication(String token){
 
         String username = jwtUtil.getUsername(token);
-        String role = jwtUtil.getRole(token);
-
         UserDetailsImpl userDetails = new UserDetailsImpl(userService.findByUsername(username));
 
         return new UsernamePasswordAuthenticationToken
@@ -90,5 +87,13 @@ public class JwtFilter extends OncePerRequestFilter {
                         null,
                         userDetails.getAuthorities());
 
+    }
+
+    // 헤더에서 Bearer를 추출하는 메소드
+    private String extractToken(String token){
+        if(token == null || !token.startsWith("Bearer ")){
+            return null;
+        }
+        return token.substring(7);
     }
 }
