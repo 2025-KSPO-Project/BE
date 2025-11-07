@@ -19,6 +19,7 @@ import java.time.Instant;
 public class UserOauth2Token {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String provider;
