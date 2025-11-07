@@ -44,7 +44,7 @@ public class UserController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResult
-                        .success(userFacade.updateCodes(request)));
+                        .success(userFacade.updateCodes(userDetails.getUsername(),request)));
 
     }
 

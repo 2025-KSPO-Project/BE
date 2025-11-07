@@ -83,9 +83,9 @@ public class UserFacade {
 
     // 회원의 장애정보 , 시도 , 시군구 코드를 설정하는 메소드
     @Transactional
-    public UserUpdateCodesResponse updateCodes(UserUpdateCodesRequest request){
+    public UserUpdateCodesResponse updateCodes(String username,UserUpdateCodesRequest request){
 
-        User userEntity = userService.updateCodes(request.username(),
+        User userEntity = userService.updateCodes(username,
                 request.disabilityCode(),
                 request.sidoCode(),
                 request.sigunguCode());
