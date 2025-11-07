@@ -12,6 +12,7 @@ public enum BaseExceptionEnum implements MessageCommInterface {
     BAD_REQUEST("BASE.EXCEPTION.BAD_REQUEST", "잘못된 요청입니다."),
     ACCESS_DENIED("BASE.EXCEPTION.ACCESS_DENIED", "{0}"),
     REFRESH_TOKEN_EXPIRED("BASE.EXCEPTION.REFRESH_TOKEN_EXPIRED","Refresh 토큰이 파기되었거나 존재하지 않습니다. 재로그인이 필요합니다."),
+    ACCESS_TOKEN_EXPIRED("BASE.EXCEPTION.ACCESS_TOKEN_EXPIRED","Access 토큰이 파기되었거나 존재하지 않습니다. 재로그인이 필요합니다."),
     LOGOUT_FAILED("BASE.EXCEPTION.LOGOUT_FAILED","로그아웃에 실패하였습니다.")
     ;
 
