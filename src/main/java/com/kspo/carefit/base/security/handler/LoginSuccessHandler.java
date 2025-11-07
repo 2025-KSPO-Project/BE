@@ -5,7 +5,6 @@ import com.kspo.carefit.base.security.oauth2.entity.UserOauth2Token;
 import com.kspo.carefit.base.security.oauth2.facade.UserOauth2facade;
 import com.kspo.carefit.base.security.util.CookieUtil;
 import com.kspo.carefit.base.security.util.JwtUtil;
-import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -39,7 +38,6 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
                                         HttpServletResponse response,
-                                        FilterChain chain,
                                         Authentication authentication)
             throws IOException, ServletException {
 
@@ -50,7 +48,7 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
         OAuth2AuthenticationToken oAuth2AuthenticationToken = (OAuth2AuthenticationToken) authentication;
 
-        OAuth2AuthorizedClient client = oAuth2AuthorizedClientService.loadAuthorizedClient(
+        var client = oAuth2AuthorizedClientService.loadAuthorizedClient(
                 oAuth2AuthenticationToken.getAuthorizedClientRegistrationId(),
                 oAuth2AuthenticationToken.getName()
         );
@@ -68,9 +66,9 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         log.info("Service access Token : {}",serviceAccessToken);
         log.info("Service refresh Token : {}",serviceRefreshToken);
 
-        response.setHeader("Authorization",serviceAccessToken);
+        response.addCookie(cookieUtil.createCookie("Authorization",serviceAccessToken));
         response.addCookie(cookieUtil.createCookie("refresh",serviceRefreshToken));
-
+        response.sendRedirect("http://localhost:3000/");
 
     }
 
