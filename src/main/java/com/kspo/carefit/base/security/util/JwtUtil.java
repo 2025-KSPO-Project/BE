@@ -1,6 +1,8 @@
 package com.kspo.carefit.base.security.util;
 
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -10,11 +12,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
 @Component
+@Slf4j
 public class JwtUtil {
 
-    private SecretKey secretKey;
+    private final SecretKey secretKey;
 
-    public JwtUtil(@Value("${spring.jwt.secret")String secret){
+    public JwtUtil(@Value("${spring.jwt.secret}")String secret){
 
         secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8),
                 Jwts
@@ -23,6 +26,7 @@ public class JwtUtil {
                         .key()
                         .build()
                         .getAlgorithm());
+
 
     }
 
@@ -85,10 +89,10 @@ public class JwtUtil {
         return Jwts.builder()
                 .claim("category",category)
                 .claim("username",username)
-                .claim("role",username)
+                .claim("role",role)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiredMs))
-                .signWith(secretKey)
+                .signWith(secretKey,Jwts.SIG.HS256)
                 .compact();
 
     }
