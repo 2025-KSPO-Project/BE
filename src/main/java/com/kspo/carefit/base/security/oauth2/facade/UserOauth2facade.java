@@ -1,5 +1,6 @@
 package com.kspo.carefit.base.security.oauth2.facade;
 
+import com.kspo.carefit.base.security.oauth2.dto.response.NaverRefreshResponse;
 import com.kspo.carefit.base.security.oauth2.entity.UserOauth2Token;
 import com.kspo.carefit.base.security.oauth2.service.UserOauth2TokenService;
 import com.kspo.carefit.damain.user.service.UserService;
@@ -40,5 +41,21 @@ public class UserOauth2facade {
 
         userOauth2TokenService.updateTokenEntity(tokenEntity);
 
+    }
+
+    public NaverRefreshResponse refreshToken(String username){
+
+        UserOauth2Token tokenEntity = findTokenEntityByUsername(username);
+
+        NaverRefreshResponse response = userOauth2TokenService // Client 를 통한 API 호출 결과를 가져오기
+                .refreshToken(tokenEntity.getRefreshToken(),
+                        tokenEntity.getUser().getId());
+
+        userOauth2TokenService
+                .updateAccessToken(response.access_token(),tokenEntity); // API 호출 결과를 토큰 객체에 반영하기
+
+        updateTokenEntity(tokenEntity);
+
+        return response;
     }
 }

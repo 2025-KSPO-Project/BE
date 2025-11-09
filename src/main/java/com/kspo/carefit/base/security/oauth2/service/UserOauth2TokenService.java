@@ -3,7 +3,9 @@ package com.kspo.carefit.base.security.oauth2.service;
 import com.kspo.carefit.base.client.OAuth2Client;
 import com.kspo.carefit.base.config.exception.BaseExceptionEnum;
 import com.kspo.carefit.base.config.exception.domain.BaseException;
+import com.kspo.carefit.base.security.oauth2.dto.response.NaverRefreshResponse;
 import com.kspo.carefit.base.security.oauth2.entity.UserOauth2Token;
+import com.kspo.carefit.base.security.oauth2.facade.UserOauth2facade;
 import com.kspo.carefit.base.security.oauth2.repository.UserOauth2TokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -35,7 +37,7 @@ public class UserOauth2TokenService {
         return UserOauth2Token.builder()
                 .provider("naver")
                 .accessToken(accessToken)
-                .accessTokenExpiresAt(Instant.now().plusMillis(24 * 60 * 60 * 1000L))
+                .accessTokenExpiresAt(Instant.now().plusMillis(60 * 60 * 1000L))
                 .build();
     }
 
@@ -46,10 +48,24 @@ public class UserOauth2TokenService {
         return oAuth2Client.revokeToken(userOauth2Token.getAccessToken());
     }
 
+    public NaverRefreshResponse refreshToken(String refreshToken,Long id){
+
+        return oAuth2Client.refreshToken(refreshToken);
+
+    }
+
 
     /*
     기본 CRUD 메소드 모음
      */
+
+    public void updateAccessToken(String accessToken,UserOauth2Token tokenEntity){
+
+        tokenEntity.setAccessToken(accessToken);
+        tokenEntity.setAccessTokenExpiresAt(Instant
+                .now()
+                .plusMillis(60*60*1000L));
+    }
 
     public void updateTokenEntity(UserOauth2Token tokenEntity){
 

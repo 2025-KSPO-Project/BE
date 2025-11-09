@@ -77,7 +77,6 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
     }
 
-
     /*
     헬퍼 메서드 모음
      */
