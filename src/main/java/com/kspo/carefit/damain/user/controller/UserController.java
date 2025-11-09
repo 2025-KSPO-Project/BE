@@ -3,11 +3,13 @@ package com.kspo.carefit.damain.user.controller;
 import com.kspo.carefit.base.config.exception.BaseExceptionEnum;
 import com.kspo.carefit.base.config.exception.dto.ApiResult;
 import com.kspo.carefit.base.security.oauth2.facade.UserOauth2facade;
+import com.kspo.carefit.base.security.util.CookieUtil;
 import com.kspo.carefit.damain.user.dto.request.UserUpdateCodesRequest;
 import com.kspo.carefit.damain.user.dto.response.UserUpdateCodesResponse;
 import com.kspo.carefit.damain.user.dto.response.UserProfileResponse;
 import com.kspo.carefit.damain.user.dto.response.UserSignOutResponse;
 import com.kspo.carefit.damain.user.facade.UserFacade;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,7 @@ public class UserController {
 
     private final UserFacade userFacade;
     private final UserOauth2facade userOauth2facade;
+    private final CookieUtil cookieUtil;
 
     // 회원의 프로필을 가져오는 API ( 차후 시군구,시도,장애코드 테이블 완성 후 수정필요 )
     @GetMapping("/profile")
@@ -51,13 +54,16 @@ public class UserController {
     // 회원탈퇴 로직
     @PostMapping("/signout")
     public ResponseEntity<ApiResult<UserSignOutResponse>> signOut
-            (@AuthenticationPrincipal UserDetails userDetails){
+            (@AuthenticationPrincipal UserDetails userDetails,
+             HttpServletResponse response){
 
         boolean success = userOauth2facade.revokeToken(userFacade
                 .getUserIdByUsername(userDetails
                         .getUsername()));
 
         if(success) {
+
+            cookieUtil.zeroCookie(response); // 쿠키 정보 지우기
             // true 를 반환한 경우
             return ResponseEntity.status(HttpStatus.OK)
                     .body(ApiResult

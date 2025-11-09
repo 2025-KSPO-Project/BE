@@ -3,6 +3,7 @@ package com.kspo.carefit.damain.user.service;
 import com.kspo.carefit.base.config.exception.BaseExceptionEnum;
 import com.kspo.carefit.base.config.exception.domain.BaseException;
 import com.kspo.carefit.base.security.oauth2.entity.UserOauth2Token;
+import com.kspo.carefit.base.security.util.CookieUtil;
 import com.kspo.carefit.damain.user.entity.User;
 import com.kspo.carefit.damain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -82,11 +83,6 @@ public class UserService {
                 .findByUsername(username)
                 .orElseThrow(()-> new BaseException(BaseExceptionEnum
                         .ENTITY_NOT_FOUND));
-    }
-
-    // 유저를 username 으로 찾는 메소드 , 첫 로그인시에 사용
-    public Optional<User> findUserWithOptional(String username){
-        return userRepository.findByUsername(username);
     }
 
     // 유저를 username 으로 삭제하는 메소드
