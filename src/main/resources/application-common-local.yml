@@ -1,6 +1,8 @@
 spring:
   jwt:
     secret: ${jwt_secret}
+    access-token-expiration: 86400000 # 1일
+    refresh-token-expiration: 1209600000 # 14일
 
   config:
     activate:
