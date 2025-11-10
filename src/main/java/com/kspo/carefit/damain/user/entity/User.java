@@ -12,7 +12,6 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Getter
-@Setter
 public class User {
 
     @Id
@@ -34,6 +33,22 @@ public class User {
     public void addUserOauth2Token(UserOauth2Token userOauth2Token){
         this.userOauth2Token.add(userOauth2Token);
         userOauth2Token.setUser(this);
+    }
+
+    public void updateUser(String username,
+                           String email,
+                           String nickname){
+        this.username = username;
+        this.email = email;
+        this.nickname = nickname;
+    }
+
+    public void updateCodes(Integer sidoCode,
+                            Integer sigunguCode,
+                            Integer disabilityCode){
+        this.sidoCode = sidoCode;
+        this.sigunguCode = sigunguCode;
+        this.disabilityCode = disabilityCode;
     }
 
 

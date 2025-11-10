@@ -53,9 +53,7 @@ public class UserService {
                             String email,
                             String name){
 
-        user.setUsername(username);
-        user.setEmail(email);
-        user.setNickname(name);
+        user.updateUser(username,email,name);
     }
 
     public User updateCodes(String username,
@@ -64,9 +62,7 @@ public class UserService {
                             Integer sigunguCode){
 
         User user = findByUsername(username);
-        user.setDisabilityCode(disabilityCode);
-        user.setSidoCode(sidoCode);
-        user.setSigunguCode(sigunguCode);
+        user.updateCodes(sidoCode,sigunguCode,disabilityCode);
 
         return user;
 

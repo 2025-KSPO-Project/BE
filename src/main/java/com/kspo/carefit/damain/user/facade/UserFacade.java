@@ -46,15 +46,13 @@ public class UserFacade {
         } else { // 기존의 토큰이 존재할 경우 , 토큰 업데이트
 
             UserOauth2Token tokenEntity = existingToken.get();
-            tokenEntity.setAccessToken(accessToken);
-            tokenEntity.setAccessTokenExpiresAt(Instant.now().plusMillis(24 * 60 * 60 * 1000L));
+            userOauth2TokenService.updateAccessToken(accessToken,tokenEntity);
         }
 
 
     }
 
     // 회원정보를 가져오는 메소드
-    @Transactional(readOnly = true)
     public UserProfileResponse getUserProfile(String username){
 
         User userEntity = userService.findByUsername(username);

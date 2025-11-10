@@ -11,7 +11,6 @@ import java.time.Instant;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Getter
-@Setter
 @Table(
         name = "user_oauth2token",
         uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "provider"})
@@ -28,17 +27,20 @@ public class UserOauth2Token {
     private Instant accessTokenExpiresAt;
     private Instant refreshTokenExpiresAt;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="user_id")
     private User user;
 
-    public void updateTokens(String refreshToken,
-                             Instant accessExpiresAt,
-                             Instant refreshExpiresAt) {
 
+    public void updateAccessToken(String accessToken,Instant accessTokenExpiresAt){
+        this.accessToken = accessToken;
+        this.accessTokenExpiresAt = accessTokenExpiresAt;
+    }
+
+    public void updateRefreshToken(String refreshToken,Instant refreshTokenExpiresAt){
         this.refreshToken = refreshToken;
-        this.accessTokenExpiresAt = accessExpiresAt;
-        this.refreshTokenExpiresAt = refreshExpiresAt;
+        this.refreshTokenExpiresAt = refreshTokenExpiresAt;
     }
 
 }

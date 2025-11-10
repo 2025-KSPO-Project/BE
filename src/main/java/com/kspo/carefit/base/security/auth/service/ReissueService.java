@@ -12,6 +12,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -23,6 +24,12 @@ public class ReissueService {
 
     private final RefreshRepository refreshRepository;
     private final JwtUtil jwtUtil;
+
+    @Value("${spring.jwt.refresh-token-expiration}")
+    private Long refreshTokenExpiration;
+
+    @Value("${spring.jwt.access-token-expiration}")
+    private Long accessTokenExpiration;
 
     // access , refresh 토큰을 갱신하는 메소드
     public ReissueResponse reissue(String refresh){
@@ -49,7 +56,7 @@ public class ReissueService {
         String username = jwtUtil.getUsername(refresh);
         String role = jwtUtil.getRole(refresh);
 
-        String newRefresh = jwtUtil.createJwt("refresh",username,role,14*24*60*60*1000L);
+        String newRefresh = jwtUtil.createJwt("refresh",username,role,refreshTokenExpiration);
         saveRefresh(newRefresh); // DB에 refresh 저장
 
         return newRefresh;
@@ -62,7 +69,7 @@ public class ReissueService {
         String username = jwtUtil.getUsername(refresh);
         String role = jwtUtil.getRole(refresh);
 
-        return jwtUtil.createJwt("access",username,role,24*60*60*1000L);
+        return jwtUtil.createJwt("access",username,role,accessTokenExpiration);
 
     }
 
@@ -77,14 +84,14 @@ public class ReissueService {
         Refresh refreshEntity = Refresh.builder()
                 .refreshToken(refresh)
                 .username(jwtUtil.getUsername(refresh))
-                .expiration(Instant.now().plusSeconds(14 * 24 * 60 * 60))
+                .expiration(Instant.now().plusSeconds(refreshTokenExpiration/1000)) // ms 단위를 second 로 변환
                 .build();
 
         refreshRepository.save(refreshEntity);
 
     }
 
-    // refresh 토큰을 DB에서 삭제하는 메소드
+    // refresh 토큰을 DB 에서 삭제하는 메소드
     public void deleteRefresh(String refresh){
 
         refreshRepository.deleteByRefreshToken(refresh);
