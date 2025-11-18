@@ -3,6 +3,7 @@ package com.kspo.carefit.damain.user.facade;
 import com.kspo.carefit.base.security.oauth2.entity.UserOauth2Token;
 import com.kspo.carefit.base.security.oauth2.service.UserOauth2TokenService;
 import com.kspo.carefit.damain.user.dto.request.UserUpdateCodesRequest;
+import com.kspo.carefit.damain.user.dto.response.UserExistsResponse;
 import com.kspo.carefit.damain.user.dto.response.UserUpdateCodesResponse;
 import com.kspo.carefit.damain.user.dto.response.UserProfileResponse;
 import com.kspo.carefit.damain.user.dto.response.UserSignOutResponse;
@@ -95,6 +96,18 @@ public class UserFacade {
                         userEntity.getSidoCode(),
                         userEntity.getSigunguCode(),
                 userEntity.getSportsCode());
+
+    }
+
+    public UserExistsResponse checkExists(String username){
+
+        boolean exists = userService.checkExists(username);
+
+        if(exists){
+            return new UserExistsResponse(true,"해당 회원은 이미 등록된 회원입니다.");
+        } else {
+            return new UserExistsResponse(false,"해당 회원은 등록된 회원이 아닙니다.");
+        }
 
     }
 

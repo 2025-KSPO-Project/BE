@@ -2,15 +2,13 @@ package com.kspo.carefit.damain.user.service;
 
 import com.kspo.carefit.base.config.exception.BaseExceptionEnum;
 import com.kspo.carefit.base.config.exception.domain.BaseException;
-import com.kspo.carefit.base.security.oauth2.entity.UserOauth2Token;
-import com.kspo.carefit.base.security.util.CookieUtil;
 import com.kspo.carefit.damain.user.entity.User;
 import com.kspo.carefit.damain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -87,6 +85,12 @@ public class UserService {
     public void deleteUser(String username){
         User user = findByUsername(username);
         userRepository.delete(user);
+    }
+
+    public boolean checkExists(String username){
+        User user = findByUsername(username);
+        return user.getDisabilityCode() != null;
+
     }
 
 

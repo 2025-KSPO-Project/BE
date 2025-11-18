@@ -5,6 +5,7 @@ import com.kspo.carefit.base.config.exception.dto.ApiResult;
 import com.kspo.carefit.base.security.oauth2.facade.UserOauth2facade;
 import com.kspo.carefit.base.security.util.CookieUtil;
 import com.kspo.carefit.damain.user.dto.request.UserUpdateCodesRequest;
+import com.kspo.carefit.damain.user.dto.response.UserExistsResponse;
 import com.kspo.carefit.damain.user.dto.response.UserUpdateCodesResponse;
 import com.kspo.carefit.damain.user.dto.response.UserProfileResponse;
 import com.kspo.carefit.damain.user.dto.response.UserSignOutResponse;
@@ -25,6 +26,19 @@ public class UserController {
     private final UserFacade userFacade;
     private final UserOauth2facade userOauth2facade;
     private final CookieUtil cookieUtil;
+
+    // 등록된 회원인지 체크하는 API
+    @PostMapping("/check-exists")
+    public ResponseEntity<ApiResult<UserExistsResponse>> checkExists
+            (@AuthenticationPrincipal UserDetails userDetails){
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResult
+                        .success(userFacade
+                                .checkExists(userDetails
+                                        .getUsername())));
+
+    }
 
     // 회원의 프로필을 가져오는 API ( 차후 시군구,시도,장애코드 테이블 완성 후 수정필요 )
     @GetMapping("/profile")
