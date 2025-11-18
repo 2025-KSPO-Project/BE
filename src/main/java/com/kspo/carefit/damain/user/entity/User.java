@@ -26,6 +26,13 @@ public class User {
     private Integer sigunguCode; // 시군구 코드
     private Integer disabilityCode; // 장애 코드
 
+    @ElementCollection
+    @CollectionTable(
+            name = "user_sport_codes",
+            joinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<Integer> sportsCode = new ArrayList<>(); // 관심 스포츠 코드
+
     @Builder.Default
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
     private List<UserOauth2Token> userOauth2Token = new ArrayList<>();
@@ -45,10 +52,12 @@ public class User {
 
     public void updateCodes(Integer sidoCode,
                             Integer sigunguCode,
-                            Integer disabilityCode){
+                            Integer disabilityCode,
+                            List<Integer> sportsCode){
         this.sidoCode = sidoCode;
         this.sigunguCode = sigunguCode;
         this.disabilityCode = disabilityCode;
+        this.sportsCode = sportsCode;
     }
 
 

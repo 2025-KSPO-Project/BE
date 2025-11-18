@@ -9,6 +9,7 @@ import com.kspo.carefit.damain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -59,10 +60,11 @@ public class UserService {
     public User updateCodes(String username,
                             Integer disabilityCode,
                             Integer sidoCode,
-                            Integer sigunguCode){
+                            Integer sigunguCode,
+                            List<Integer> sportsCode){
 
         User user = findByUsername(username);
-        user.updateCodes(sidoCode,sigunguCode,disabilityCode);
+        user.updateCodes(sidoCode,sigunguCode,disabilityCode,sportsCode);
 
         return user;
 

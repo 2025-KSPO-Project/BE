@@ -1,7 +1,9 @@
 package com.kspo.carefit.damain.user.dto.request;
 
-public record UserUpdateCodesRequest (String username,
-                                      Integer disabilityCode,
+import java.util.List;
+
+public record UserUpdateCodesRequest (Integer disabilityCode,
                                       Integer sidoCode,
-                                      Integer sigunguCode){
+                                      Integer sigunguCode,
+                                      List<Integer> sportsCode){
 }

@@ -40,7 +40,7 @@ public class UserController {
     }
 
     // 회원의 장애코드 , 시도 , 시군구 코드를 설정하는 API
-    @PostMapping("/update/codes")
+    @PatchMapping("/update/codes")
     public ResponseEntity<ApiResult<UserUpdateCodesResponse>> addCodes
             (@AuthenticationPrincipal UserDetails userDetails,
              @RequestBody UserUpdateCodesRequest request){

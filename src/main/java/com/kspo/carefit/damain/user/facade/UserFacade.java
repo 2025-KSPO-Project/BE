@@ -86,13 +86,15 @@ public class UserFacade {
         User userEntity = userService.updateCodes(username,
                 request.disabilityCode(),
                 request.sidoCode(),
-                request.sigunguCode());
+                request.sigunguCode(),
+                request.sportsCode());
 
         userService.saveUser(userEntity);
 
         return new UserUpdateCodesResponse(userEntity.getDisabilityCode(),
                         userEntity.getSidoCode(),
-                        userEntity.getSigunguCode());
+                        userEntity.getSigunguCode(),
+                userEntity.getSportsCode());
 
     }
 
