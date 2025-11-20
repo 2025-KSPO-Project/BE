@@ -47,3 +47,6 @@ spring:
             token-uri: ${token_uri}
             user-info-uri: ${user_info_uri}
             user-name-attribute: ${user_attribute_name}
+
+google:
+  key: ${google_api_key} # Google API 키
