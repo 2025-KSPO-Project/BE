@@ -1,5 +1,6 @@
 package com.kspo.carefit.domain.exercise.service;
 
+import com.kspo.carefit.base.client.OpenAIClient;
 import com.kspo.carefit.damain.user.entity.User;
 import com.kspo.carefit.domain.exercise.entity.Exercise;
 import com.kspo.carefit.domain.exercise.entity.ExerciseRecommendation;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -18,10 +20,10 @@ import java.util.List;
 public class ExerciseRecommendationService {
 
     private final ExerciseRecommendationRepository exerciseRecommendationRepository;
+    private final OpenAIClient openAIClient;
 
     /**
      * 운동 추천 생성 및 저장
-     * TODO: 실제 LLM API 연동 필요
      */
     public ExerciseRecommendation createRecommendation(User user, ConditionType conditionType,
                                                        List<Exercise> recentExercises) {
@@ -30,24 +32,22 @@ public class ExerciseRecommendationService {
         // LLM 프롬프트 생성
         String llmPrompt = buildLLMPrompt(user, conditionType, recentExercises);
 
-        // TODO: 실제 LLM API 호출
-        // String llmResponse = callLLMAPI(llmPrompt);
-        // LLM 응답 파싱
-        // RecommendationResult result = parseLLMResponse(llmResponse);
+        // OpenAI API 호출
+        Map<String, String> llmResult = openAIClient.getExerciseRecommendation(llmPrompt);
 
-        // 임시: Mock 데이터 사용
-        String mockExerciseName = getMockExerciseName(conditionType);
-        String mockSportName = getMockSportName(conditionType);
-        String mockLLMResponse = getMockLLMResponse(conditionType);
+        // LLM 응답에서 데이터 추출
+        String exerciseName = llmResult.getOrDefault("exercise_name", "걷기");
+        String sportName = llmResult.getOrDefault("sport_name", "산책");
+        String reason = llmResult.getOrDefault("reason", "컨디션에 맞는 운동을 추천드립니다.");
 
         ExerciseRecommendation recommendation = ExerciseRecommendation.builder()
                 .user(user)
                 .recommendationDate(today)
-                .exerciseName(mockExerciseName)
-                .sportName(mockSportName)
+                .exerciseName(exerciseName)
+                .sportName(sportName)
                 .conditionType(conditionType)
                 .llmPrompt(llmPrompt)
-                .llmResponse(mockLLMResponse)
+                .llmResponse(reason)
                 .isAccepted(false)
                 .build();
 
@@ -79,36 +79,6 @@ public class ExerciseRecommendationService {
         prompt.append("}");
 
         return prompt.toString();
-    }
-
-    /**
-     * Mock 데이터 생성 (실제 LLM API 연동 전까지 사용)
-     */
-    private String getMockExerciseName(ConditionType conditionType) {
-        return switch (conditionType) {
-            case EXERCISED_YESTERDAY -> "가벼운 스트레칭";
-            case INJURED -> "재활 운동";
-            case REHABILITATION -> "물리치료 운동";
-            case NONE -> "유산소 운동";
-        };
-    }
-
-    private String getMockSportName(ConditionType conditionType) {
-        return switch (conditionType) {
-            case EXERCISED_YESTERDAY -> "요가";
-            case INJURED -> "재활";
-            case REHABILITATION -> "물리치료";
-            case NONE -> "러닝";
-        };
-    }
-
-    private String getMockLLMResponse(ConditionType conditionType) {
-        return switch (conditionType) {
-            case EXERCISED_YESTERDAY -> "전날 운동을 하셨기 때문에 가벼운 스트레칭을 추천드립니다.";
-            case INJURED -> "부상이 있으시니 재활 운동을 천천히 진행하시는 것을 추천드립니다.";
-            case REHABILITATION -> "재활 중이시니 물리치료 운동을 지속하시는 것이 좋겠습니다.";
-            case NONE -> "컨디션이 좋으시니 유산소 운동을 추천드립니다.";
-        };
     }
 
     /**
