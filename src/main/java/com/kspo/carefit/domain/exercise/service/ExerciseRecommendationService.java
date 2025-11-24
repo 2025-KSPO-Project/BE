@@ -1,6 +1,7 @@
 package com.kspo.carefit.domain.exercise.service;
 
-import com.kspo.carefit.base.client.OpenAIClient;
+import com.kspo.carefit.base.client.AIClient;
+import com.kspo.carefit.base.client.AIClientFactory;
 import com.kspo.carefit.damain.user.entity.User;
 import com.kspo.carefit.domain.exercise.entity.Exercise;
 import com.kspo.carefit.domain.exercise.entity.ExerciseRecommendation;
@@ -20,7 +21,7 @@ import java.util.Map;
 public class ExerciseRecommendationService {
 
     private final ExerciseRecommendationRepository exerciseRecommendationRepository;
-    private final OpenAIClient openAIClient;
+    private final AIClientFactory aiClientFactory;
 
     /**
      * 운동 추천 생성 및 저장
@@ -32,8 +33,9 @@ public class ExerciseRecommendationService {
         // LLM 프롬프트 생성
         String llmPrompt = buildLLMPrompt(user, conditionType, recentExercises);
 
-        // OpenAI API 호출
-        Map<String, String> llmResult = openAIClient.getExerciseRecommendation(llmPrompt);
+        // AI 클라이언트를 통해 운동 추천 받기
+        AIClient aiClient = aiClientFactory.getAIClient();
+        Map<String, String> llmResult = aiClient.getExerciseRecommendation(llmPrompt);
 
         // LLM 응답에서 데이터 추출
         String exerciseName = llmResult.getOrDefault("exercise_name", "걷기");

@@ -4,9 +4,18 @@ spring:
     access-token-expiration: 86400000 # 1일
     refresh-token-expiration: 1209600000 # 14일
 
+  ai:
+    provider: ${ai_provider:openai} # openai 또는 gemini
+
   openai:
     api-key: ${openai_api_key}
     model: gpt-3.5-turbo
+    timeout: 30000 # 30초
+
+  gemini:
+    api-key: ${gemini_api_key}
+    model: gemini-1.5-flash
+    api-url: https://generativelanguage.googleapis.com/v1beta/models
     timeout: 30000 # 30초
 
   config:

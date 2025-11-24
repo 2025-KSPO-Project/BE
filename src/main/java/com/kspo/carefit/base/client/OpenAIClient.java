@@ -18,20 +18,15 @@ import java.util.List;
 import java.util.Map;
 
 @Slf4j
-@Component
+@Component("openAIClient")
 @RequiredArgsConstructor
-public class OpenAIClient {
+public class OpenAIClient implements AIClient {
 
     private final OpenAiService openAiService;
     private final OpenAIConfig openAIConfig;
     private final ObjectMapper objectMapper;
 
-    /**
-     * OpenAI API를 호출하여 운동 추천을 받습니다.
-     *
-     * @param prompt 사용자 정보 및 요청사항이 담긴 프롬프트
-     * @return LLM 응답 (JSON 형식)
-     */
+    @Override
     public Map<String, String> getExerciseRecommendation(String prompt) {
         try {
             ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
@@ -87,5 +82,10 @@ public class OpenAIClient {
             cleaned = cleaned.substring(0, cleaned.length() - 3);
         }
         return cleaned.trim();
+    }
+
+    @Override
+    public String getProviderName() {
+        return "OpenAI";
     }
 }
