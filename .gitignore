@@ -585,3 +585,9 @@ build/
 .idea/
 *.iml
 *.iws
+
+### QueryDSL ###
+**/generated/
+
+### Docs ###
+docs/
