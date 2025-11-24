@@ -27,7 +27,6 @@ public class UserController {
     private final UserOauth2facade userOauth2facade;
     private final CookieUtil cookieUtil;
 
-    // 등록된 회원인지 체크하는 API
     @PostMapping("/check-exists")
     public ResponseEntity<ApiResult<UserExistsResponse>> checkExists
             (@AuthenticationPrincipal UserDetails userDetails){
@@ -40,7 +39,6 @@ public class UserController {
 
     }
 
-    // 회원의 프로필을 가져오는 API ( 차후 시군구,시도,장애코드 테이블 완성 후 수정필요 )
     @GetMapping("/profile")
     public ResponseEntity<ApiResult<UserProfileResponse>> getProfile
             (@AuthenticationPrincipal UserDetails userDetails){
@@ -53,7 +51,6 @@ public class UserController {
 
     }
 
-    // 회원의 장애코드 , 시도 , 시군구 코드를 설정하는 API
     @PatchMapping("/update/codes")
     public ResponseEntity<ApiResult<UserUpdateCodesResponse>> addCodes
             (@AuthenticationPrincipal UserDetails userDetails,
@@ -65,7 +62,6 @@ public class UserController {
 
     }
 
-    // 회원탈퇴 로직
     @PostMapping("/signout")
     public ResponseEntity<ApiResult<UserSignOutResponse>> signOut
             (@AuthenticationPrincipal UserDetails userDetails,
@@ -76,9 +72,7 @@ public class UserController {
                         .getUsername()));
 
         if(success) {
-
-            cookieUtil.zeroCookie(response); // 쿠키 정보 지우기
-            // true 를 반환한 경우
+            cookieUtil.zeroCookie(response);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(ApiResult
                             .success(userFacade
@@ -86,7 +80,6 @@ public class UserController {
                                             .getUsername())));
         }
         else {
-            // false 를 반환한 경우
             return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
                     .body(ApiResult
                             .fail(BaseExceptionEnum
