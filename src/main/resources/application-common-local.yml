@@ -5,7 +5,7 @@ spring:
     refresh-token-expiration: 1209600000 # 14일
 
   ai:
-    provider: ${ai_provider:openai} # openai 또는 gemini
+    provider: openai # 기본 AI 제공자 (openai 또는 gemini)
 
   openai:
     api-key: ${openai_api_key}
