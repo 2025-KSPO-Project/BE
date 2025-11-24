@@ -197,4 +197,21 @@ public class ExerciseController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResult.success(response));
     }
+
+    /**
+     * 운동 추천받기
+     */
+    @PostMapping("/recommend")
+    public ResponseEntity<ApiResult<RecommendExerciseDto.Response>> recommendExercise(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody RecommendExerciseDto.Request request) {
+
+        RecommendExerciseDto.Response response = exerciseFacade.recommendExercise(
+                userDetails.getUsername(),
+                request
+        );
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResult.success(response));
+    }
 }

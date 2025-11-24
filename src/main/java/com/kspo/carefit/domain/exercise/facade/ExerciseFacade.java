@@ -5,8 +5,10 @@ import com.kspo.carefit.damain.user.service.UserService;
 import com.kspo.carefit.domain.exercise.dto.*;
 import com.kspo.carefit.domain.exercise.entity.ConditionCheck;
 import com.kspo.carefit.domain.exercise.entity.Exercise;
+import com.kspo.carefit.domain.exercise.entity.ExerciseRecommendation;
 import com.kspo.carefit.domain.exercise.entity.ExerciseSchedule;
 import com.kspo.carefit.domain.exercise.service.ConditionCheckService;
+import com.kspo.carefit.domain.exercise.service.ExerciseRecommendationService;
 import com.kspo.carefit.domain.exercise.service.ExerciseScheduleService;
 import com.kspo.carefit.domain.exercise.service.ExerciseService;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,7 @@ public class ExerciseFacade {
     private final ExerciseService exerciseService;
     private final ConditionCheckService conditionCheckService;
     private final ExerciseScheduleService exerciseScheduleService;
+    private final ExerciseRecommendationService exerciseRecommendationService;
     private final UserService userService;
 
     /**
@@ -249,5 +252,34 @@ public class ExerciseFacade {
         return exerciseService.getExercisesByDate(user.getId(), date).stream()
                 .map(GetDetailDto.Response::from)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 운동 추천받기
+     */
+    @Transactional
+    public RecommendExerciseDto.Response recommendExercise(String username, RecommendExerciseDto.Request request) {
+        User user = userService.findByUsername(username);
+
+        // 최근 3일간 운동 기록 조회
+        LocalDate today = LocalDate.now();
+        LocalDate threeDaysAgo = today.minusDays(3);
+        List<Exercise> recentExercises = exerciseService.getExercisesByDateRange(
+                user.getId(),
+                threeDaysAgo,
+                today
+        );
+
+        // 추천 생성
+        ExerciseRecommendation recommendation = exerciseRecommendationService.createRecommendation(
+                user,
+                request.conditionType(),
+                recentExercises
+        );
+
+        // 추천 이유 추출 (llmResponse에서)
+        String reason = recommendation.getLlmResponse();
+
+        return RecommendExerciseDto.Response.from(recommendation, reason);
     }
 }
