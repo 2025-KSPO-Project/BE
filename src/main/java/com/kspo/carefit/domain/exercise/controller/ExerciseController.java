@@ -142,4 +142,59 @@ public class ExerciseController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResult.successNoContent());
     }
+
+    /**
+     * 이번달 운동 통계 조회
+     */
+    @GetMapping("/stats")
+    public ResponseEntity<ApiResult<GetStatsDto.Response>> getMonthlyStats(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam int year,
+            @RequestParam int month) {
+
+        GetStatsDto.Response response = exerciseFacade.getMonthlyStats(
+                userDetails.getUsername(),
+                year,
+                month
+        );
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResult.success(response));
+    }
+
+    /**
+     * 캘린더 형식 조회
+     */
+    @GetMapping("/calendar")
+    public ResponseEntity<ApiResult<GetCalendarDto.Response>> getCalendar(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam int year,
+            @RequestParam int month) {
+
+        GetCalendarDto.Response response = exerciseFacade.getCalendar(
+                userDetails.getUsername(),
+                year,
+                month
+        );
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResult.success(response));
+    }
+
+    /**
+     * 특정 날짜 운동 상세 조회
+     */
+    @GetMapping("/detail")
+    public ResponseEntity<ApiResult<List<GetDetailDto.Response>>> getExerciseDetail(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam LocalDate date) {
+
+        List<GetDetailDto.Response> response = exerciseFacade.getExerciseDetail(
+                userDetails.getUsername(),
+                date
+        );
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResult.success(response));
+    }
 }

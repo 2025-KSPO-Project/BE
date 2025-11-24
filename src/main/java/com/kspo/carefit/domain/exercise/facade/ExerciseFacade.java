@@ -14,8 +14,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Optional;
+import java.time.YearMonth;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -140,5 +140,114 @@ public class ExerciseFacade {
     @Transactional
     public void deleteSchedule(Long scheduleId) {
         exerciseScheduleService.deleteSchedule(scheduleId);
+    }
+
+    /**
+     * 이번달 운동 통계 조회
+     */
+    @Transactional(readOnly = true)
+    public GetStatsDto.Response getMonthlyStats(String username, int year, int month) {
+        User user = userService.findByUsername(username);
+
+        // 해당 월의 시작일과 마지막일 계산
+        LocalDate startDate = LocalDate.of(year, month, 1);
+        LocalDate endDate = YearMonth.of(year, month).atEndOfMonth();
+
+        // 기간별 운동 조회
+        List<Exercise> exercises = exerciseService.getExercisesByDateRange(user.getId(), startDate, endDate);
+
+        // 종료된 운동만 필터링
+        List<Exercise> completedExercises = exercises.stream()
+                .filter(e -> e.getEndTime() != null)
+                .collect(Collectors.toList());
+
+        // 통계 계산
+        int totalExerciseDays = (int) completedExercises.stream()
+                .map(Exercise::getExerciseDate)
+                .distinct()
+                .count();
+
+        int totalDurationMinutes = completedExercises.stream()
+                .mapToInt(e -> e.getDurationMinutes() != null ? e.getDurationMinutes() : 0)
+                .sum();
+
+        int averageDurationMinutes = totalExerciseDays > 0 ? totalDurationMinutes / totalExerciseDays : 0;
+
+        // 가장 많이 한 운동
+        String mostFrequentExercise = completedExercises.stream()
+                .collect(Collectors.groupingBy(Exercise::getExerciseName, Collectors.counting()))
+                .entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse(null);
+
+        // 날짜별 운동 목록
+        List<GetStatsDto.ExerciseByDate> exerciseByDate = completedExercises.stream()
+                .map(e -> new GetStatsDto.ExerciseByDate(
+                        e.getExerciseDate(),
+                        e.getExerciseName(),
+                        e.getDurationMinutes()
+                ))
+                .collect(Collectors.toList());
+
+        return new GetStatsDto.Response(
+                totalExerciseDays,
+                totalDurationMinutes,
+                averageDurationMinutes,
+                mostFrequentExercise,
+                exerciseByDate
+        );
+    }
+
+    /**
+     * 캘린더 형식 조회
+     */
+    @Transactional(readOnly = true)
+    public GetCalendarDto.Response getCalendar(String username, int year, int month) {
+        User user = userService.findByUsername(username);
+
+        // 해당 월의 시작일과 마지막일 계산
+        LocalDate startDate = LocalDate.of(year, month, 1);
+        LocalDate endDate = YearMonth.of(year, month).atEndOfMonth();
+
+        // 기간별 운동 조회
+        List<Exercise> exercises = exerciseService.getExercisesByDateRange(user.getId(), startDate, endDate);
+
+        // 날짜별로 그룹화
+        Map<LocalDate, List<Exercise>> exercisesByDate = exercises.stream()
+                .filter(e -> e.getEndTime() != null)
+                .collect(Collectors.groupingBy(Exercise::getExerciseDate));
+
+        // 모든 날짜에 대해 ExerciseDay 생성
+        List<GetCalendarDto.ExerciseDay> exerciseDays = new ArrayList<>();
+        for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+            List<Exercise> dayExercises = exercisesByDate.getOrDefault(date, Collections.emptyList());
+            boolean hasExercise = !dayExercises.isEmpty();
+            int exerciseCount = dayExercises.size();
+            int totalDuration = dayExercises.stream()
+                    .mapToInt(e -> e.getDurationMinutes() != null ? e.getDurationMinutes() : 0)
+                    .sum();
+
+            exerciseDays.add(new GetCalendarDto.ExerciseDay(
+                    date,
+                    hasExercise,
+                    exerciseCount,
+                    totalDuration
+            ));
+        }
+
+        return new GetCalendarDto.Response(year, month, exerciseDays);
+    }
+
+    /**
+     * 특정 날짜 운동 상세 조회
+     */
+    @Transactional(readOnly = true)
+    public List<GetDetailDto.Response> getExerciseDetail(String username, LocalDate date) {
+        User user = userService.findByUsername(username);
+
+        return exerciseService.getExercisesByDate(user.getId(), date).stream()
+                .map(GetDetailDto.Response::from)
+                .collect(Collectors.toList());
     }
 }

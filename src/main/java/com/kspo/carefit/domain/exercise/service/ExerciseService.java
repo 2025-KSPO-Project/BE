@@ -10,7 +10,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -80,5 +82,21 @@ public class ExerciseService {
     public Exercise getExerciseById(Long exerciseId) {
         return exerciseRepository.findById(exerciseId)
                 .orElseThrow(() -> new BaseException(ExerciseExceptionEnum.EXERCISE_NOT_FOUND));
+    }
+
+    /**
+     * 기간별 운동 조회
+     */
+    @Transactional(readOnly = true)
+    public List<Exercise> getExercisesByDateRange(Long userId, LocalDate startDate, LocalDate endDate) {
+        return exerciseRepository.findByUserIdAndExerciseDateBetween(userId, startDate, endDate);
+    }
+
+    /**
+     * 특정 날짜 운동 조회
+     */
+    @Transactional(readOnly = true)
+    public List<Exercise> getExercisesByDate(Long userId, LocalDate date) {
+        return exerciseRepository.findByUserIdAndExerciseDate(userId, date);
     }
 }
