@@ -10,6 +10,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -79,5 +81,65 @@ public class ExerciseController {
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResult.success(response.orElse(null)));
+    }
+
+    /**
+     * 운동 일정 생성
+     */
+    @PostMapping("/schedule")
+    public ResponseEntity<ApiResult<CreateScheduleDto.Response>> createSchedule(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody CreateScheduleDto.Request request) {
+
+        CreateScheduleDto.Response response = exerciseFacade.createSchedule(
+                userDetails.getUsername(),
+                request
+        );
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResult.success(response));
+    }
+
+    /**
+     * 날짜별 일정 조회
+     */
+    @GetMapping("/schedule")
+    public ResponseEntity<ApiResult<List<GetScheduleDto.Response>>> getSchedulesByDate(
+            @AuthenticationPrincipal UserDetails userDetails,
+            @RequestParam LocalDate date) {
+
+        List<GetScheduleDto.Response> response = exerciseFacade.getSchedulesByDate(
+                userDetails.getUsername(),
+                date
+        );
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResult.success(response));
+    }
+
+    /**
+     * 일정 수정
+     */
+    @PatchMapping("/schedule/{scheduleId}")
+    public ResponseEntity<ApiResult<UpdateScheduleDto.Response>> updateSchedule(
+            @PathVariable Long scheduleId,
+            @RequestBody UpdateScheduleDto.Request request) {
+
+        UpdateScheduleDto.Response response = exerciseFacade.updateSchedule(scheduleId, request);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResult.success(response));
+    }
+
+    /**
+     * 일정 삭제
+     */
+    @DeleteMapping("/schedule/{scheduleId}")
+    public ResponseEntity<ApiResult<Void>> deleteSchedule(@PathVariable Long scheduleId) {
+
+        exerciseFacade.deleteSchedule(scheduleId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResult.successNoContent());
     }
 }
