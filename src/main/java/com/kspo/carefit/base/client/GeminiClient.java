@@ -8,6 +8,7 @@ import com.kspo.carefit.domain.exercise.exception.ExerciseException;
 import com.kspo.carefit.domain.exercise.exception.ExerciseExceptionEnum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.*;
 import org.springframework.stereotype.Component;
@@ -21,6 +22,7 @@ import java.util.Map;
 @Slf4j
 @Component("geminiClient")
 @RequiredArgsConstructor
+@ConditionalOnExpression("!'${spring.gemini.api-key:}'.isEmpty() && '${spring.openai.api-key:}'.isEmpty()")
 public class GeminiClient implements AIClient {
 
     private final GeminiConfig geminiConfig;

@@ -12,6 +12,7 @@ import com.theokanning.openai.completion.chat.ChatMessageRole;
 import com.theokanning.openai.service.OpenAiService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -20,6 +21,7 @@ import java.util.Map;
 @Slf4j
 @Component("openAIClient")
 @RequiredArgsConstructor
+@ConditionalOnExpression("!'${spring.openai.api-key:}'.isEmpty()")
 public class OpenAIClient implements AIClient {
 
     private final OpenAiService openAiService;
