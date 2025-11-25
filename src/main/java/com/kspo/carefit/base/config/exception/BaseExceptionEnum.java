@@ -17,7 +17,10 @@ public enum BaseExceptionEnum implements MessageCommInterface {
     UNSUPPORTED_PROVIDER("BASE.EXCEPTION.UNSUPPORTED_PROVIDER","해당 소셜 로그인은 지원하지 않습니다."),
     CARPOOL_NOT_FOUND("BASE.EXCEPTION.CARPOOL_NOT_FOUND","해당 사용자의 카풀 글을 찾을 수 없습니다."),
     WRITER_UNMATCHED("BASE.EXCEPTION.WRITER_UNMATCHED","사용자와 글쓴이가 일치하지 않습니다."),
-    APPLY_NOT_FOUND("BASE.EXCEPTION.APPLY_NOT_FOUND","사용자의 해당 카풀에 대한 지원을 찾을 수 없습니다.")
+    APPLY_NOT_FOUND("BASE.EXCEPTION.APPLY_NOT_FOUND","사용자의 해당 카풀에 대한 지원을 찾을 수 없습니다."),
+    CLUBS_NOT_FOUND("BASE.EXCEPTION.CLUBS_NOT_FOUND","해당 스포츠 클럽을 찾을 수 없습니다."),
+    COMPETITION_NOT_FOUND("BASE.EXCEPTION.COMPETITION_NOT_FOUND","해당 대회정보를 찾을 수 없습니다."),
+    FACILITY_NOT_FOUND("BASE.EXCEPTION.FACILITY_NOT_FOUND","해당 시설정보를 찾을 수 없습니다.")
     ;
 
     private final String errorCode;
