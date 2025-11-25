@@ -14,7 +14,10 @@ public enum BaseExceptionEnum implements MessageCommInterface {
     REFRESH_TOKEN_EXPIRED("BASE.EXCEPTION.REFRESH_TOKEN_EXPIRED","Refresh 토큰이 파기되었거나 존재하지 않습니다. 재로그인이 필요합니다."),
     ACCESS_TOKEN_EXPIRED("BASE.EXCEPTION.ACCESS_TOKEN_EXPIRED","Access 토큰이 파기되었거나 존재하지 않습니다. 재로그인이 필요합니다."),
     LOGOUT_FAILED("BASE.EXCEPTION.LOGOUT_FAILED","로그아웃에 실패하였습니다."),
-    UNSUPPORTED_PROVIER("BASE.EXCEPTION.UNSUPPORTED_PROVIDER","해당 소셜 로그인은 지원하지 않습니다.")
+    UNSUPPORTED_PROVIDER("BASE.EXCEPTION.UNSUPPORTED_PROVIDER","해당 소셜 로그인은 지원하지 않습니다."),
+    CARPOOL_NOT_FOUND("BASE.EXCEPTION.CARPOOL_NOT_FOUND","해당 사용자의 카풀 글을 찾을 수 없습니다."),
+    WRITER_UNMATCHED("BASE.EXCEPTION.WRITER_UNMATCHED","사용자와 글쓴이가 일치하지 않습니다."),
+    APPLY_NOT_FOUND("BASE.EXCEPTION.APPLY_NOT_FOUND","사용자의 해당 카풀에 대한 지원을 찾을 수 없습니다.")
     ;
 
     private final String errorCode;
