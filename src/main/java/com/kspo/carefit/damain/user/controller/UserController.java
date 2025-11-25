@@ -10,6 +10,9 @@ import com.kspo.carefit.damain.user.dto.response.UserUpdateCodesResponse;
 import com.kspo.carefit.damain.user.dto.response.UserProfileResponse;
 import com.kspo.carefit.damain.user.dto.response.UserSignOutResponse;
 import com.kspo.carefit.damain.user.facade.UserFacade;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,6 +21,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "User", description = "사용자 관리 API")
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
@@ -27,10 +31,10 @@ public class UserController {
     private final UserOauth2facade userOauth2facade;
     private final CookieUtil cookieUtil;
 
-    // 등록된 회원인지 체크하는 API
+    @Operation(summary = "회원 등록 여부 확인", description = "사용자가 이미 등록된 회원인지 확인합니다.")
     @PostMapping("/check-exists")
     public ResponseEntity<ApiResult<UserExistsResponse>> checkExists
-            (@AuthenticationPrincipal UserDetails userDetails){
+            (@Parameter(hidden = true) @AuthenticationPrincipal UserDetails userDetails){
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResult
@@ -40,10 +44,10 @@ public class UserController {
 
     }
 
-    // 회원의 프로필을 가져오는 API ( 차후 시군구,시도,장애코드 테이블 완성 후 수정필요 )
+    @Operation(summary = "회원 프로필 조회", description = "사용자의 프로필 정보를 조회합니다.")
     @GetMapping("/profile")
     public ResponseEntity<ApiResult<UserProfileResponse>> getProfile
-            (@AuthenticationPrincipal UserDetails userDetails){
+            (@Parameter(hidden = true) @AuthenticationPrincipal UserDetails userDetails){
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResult
@@ -53,10 +57,10 @@ public class UserController {
 
     }
 
-    // 회원의 장애코드 , 시도 , 시군구 코드를 설정하는 API
+    @Operation(summary = "회원 코드 정보 수정", description = "사용자의 장애코드, 시도, 시군구 코드를 설정합니다.")
     @PatchMapping("/update/codes")
     public ResponseEntity<ApiResult<UserUpdateCodesResponse>> addCodes
-            (@AuthenticationPrincipal UserDetails userDetails,
+            (@Parameter(hidden = true) @AuthenticationPrincipal UserDetails userDetails,
              @RequestBody UserUpdateCodesRequest request){
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -65,20 +69,18 @@ public class UserController {
 
     }
 
-    // 회원탈퇴 로직
+    @Operation(summary = "회원 탈퇴", description = "사용자 계정을 탈퇴합니다.")
     @PostMapping("/signout")
     public ResponseEntity<ApiResult<UserSignOutResponse>> signOut
-            (@AuthenticationPrincipal UserDetails userDetails,
-             HttpServletResponse response){
+            (@Parameter(hidden = true) @AuthenticationPrincipal UserDetails userDetails,
+             @Parameter(hidden = true) HttpServletResponse response){
 
         boolean success = userOauth2facade.revokeToken(userFacade
                 .getUserIdByUsername(userDetails
                         .getUsername()));
 
         if(success) {
-
-            cookieUtil.zeroCookie(response); // 쿠키 정보 지우기
-            // true 를 반환한 경우
+            cookieUtil.zeroCookie(response);
             return ResponseEntity.status(HttpStatus.OK)
                     .body(ApiResult
                             .success(userFacade
@@ -86,7 +88,6 @@ public class UserController {
                                             .getUsername())));
         }
         else {
-            // false 를 반환한 경우
             return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
                     .body(ApiResult
                             .fail(BaseExceptionEnum

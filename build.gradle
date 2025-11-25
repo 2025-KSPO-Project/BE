@@ -67,6 +67,9 @@ dependencies {
     implementation 'org.apache.commons:commons-text:1.10.0'
     implementation 'com.google.code.gson:gson'
 
+    /*AI*/
+    implementation 'com.theokanning.openai-gpt3-java:service:0.18.2'
+
     /*OPS*/
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
 //    developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
