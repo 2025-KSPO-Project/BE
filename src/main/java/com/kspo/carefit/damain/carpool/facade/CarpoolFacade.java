@@ -1,12 +1,18 @@
 package com.kspo.carefit.damain.carpool.facade;
 
 import com.kspo.carefit.damain.carpool.dto.NearBySpot;
+import com.kspo.carefit.damain.carpool.dto.request.CarpoolPostRequest;
 import com.kspo.carefit.damain.carpool.dto.request.GetGradiantRequest;
 import com.kspo.carefit.damain.carpool.dto.request.SearchFineWayRequest;
-import com.kspo.carefit.damain.carpool.dto.response.RecommendedSpotResponse;
+import com.kspo.carefit.damain.carpool.dto.response.*;
+import com.kspo.carefit.damain.carpool.entity.Carpool;
 import com.kspo.carefit.damain.carpool.service.CarpoolService;
+import com.kspo.carefit.damain.user.entity.User;
+import com.kspo.carefit.damain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -15,15 +21,63 @@ import java.util.List;
 public class CarpoolFacade {
 
     private final CarpoolService carpoolService;
+    private final UserService userService;
 
-    public NearBySpot findNearBy(SearchFineWayRequest request){
+    // 카풀을 업로드하는 메소드
+    @Transactional
+    public CarpoolPostResponse postCarpool
+            (CarpoolPostRequest carpoolPostRequest,
+             String username){
 
-        return carpoolService
-                .findNearBy(request.endLat(),
-                        request.endLng());
+        User writer = userService.findByUsername(username);
+        Carpool carpool = carpoolService.createCarpoolPost(carpoolPostRequest,writer);
+
+        writer.addCarpool(carpool);
+
+        return new CarpoolPostResponse(carpoolPostRequest.title(),
+                writer.getUsername(),
+                carpool.getPostedAt());
+    }
+
+    // 해당 지역의 카풀 포스팅 가져오기
+    @Transactional
+    public Page<CarpoolResponse> getLocalCarpoolPost(String username,int page,int size){
+
+        Integer sigunguCode = userService
+                .findByUsername(username)
+                .getSigunguCode();
+
+        return carpoolService.getLocalCarpools(sigunguCode,page,size);
 
     }
 
+    @Transactional
+    // 자신의 카풀 포스팅 가져오기
+    public MyCarpoolResponse getMyCarpool(String username){
+
+        return carpoolService.getMyCarpools(userService
+                .findByUsername(username)
+                .getId());
+
+    }
+
+    @Transactional
+    public CarpoolResponse getCarpoolPost(Long id){
+        return carpoolService.getCarpoolPost(id);
+    }
+
+    @Transactional
+    // 카풀 포스팅을 삭제하는 메소드
+    public CarpoolDeleteResponse deleteCarpool(Long id,String username){
+
+        User user = userService.findByUsername(username);
+        Carpool carpool = carpoolService.findById(id);
+
+        return carpoolService.deleteCarpoolByWriterId(carpool,user.getId());
+    }
+
+    @Transactional
+    // 추천스팟 찾기 메소드
     public RecommendedSpotResponse findRecommendedSpot
             (SearchFineWayRequest request){
 

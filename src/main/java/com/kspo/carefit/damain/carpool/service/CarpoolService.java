@@ -1,15 +1,24 @@
 package com.kspo.carefit.damain.carpool.service;
 
 import com.kspo.carefit.base.client.GoogleMapClient;
+import com.kspo.carefit.base.config.exception.BaseExceptionEnum;
+import com.kspo.carefit.base.config.exception.domain.BaseException;
 import com.kspo.carefit.base.helper.MathHelper;
 import com.kspo.carefit.damain.carpool.dto.NearBySpot;
+import com.kspo.carefit.damain.carpool.dto.request.CarpoolPostRequest;
 import com.kspo.carefit.damain.carpool.dto.request.GetGradiantRequest;
-import com.kspo.carefit.damain.carpool.dto.response.GetGradiantResponse;
-import com.kspo.carefit.damain.carpool.dto.response.NearByResponse;
+import com.kspo.carefit.damain.carpool.dto.response.*;
+import com.kspo.carefit.damain.carpool.entity.Carpool;
 import com.kspo.carefit.damain.carpool.repository.CarpoolRepository;
+import com.kspo.carefit.damain.user.entity.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 
 @Service
@@ -20,6 +29,140 @@ public class CarpoolService {
     private final GoogleMapClient googleMapClient;
     private final MathHelper mathHelper;
 
+    /*
+    기본적인 CRUD 메소드 모음
+     */
+
+    // 작성자의 id로 카풀 객체를 가져오는 메소드
+    public List<Carpool> findByWriterId(Long writerId){
+
+        List<Carpool> carpools = carpoolRepository.findByWriterId(writerId);
+
+        if (carpools.isEmpty()) {
+            throw new BaseException(BaseExceptionEnum.CARPOOL_NOT_FOUND);
+        }
+
+        return carpools;
+    }
+
+    // id로 카풀 객체 받아오기
+    public Carpool findById(Long id){
+        return carpoolRepository
+                .findByIdWithWriter(id)
+                .orElseThrow(()->
+                        new BaseException(BaseExceptionEnum.CARPOOL_NOT_FOUND));
+    }
+
+    // 카풀 객체 삭제하기
+    public void deleteCarpool(Carpool carpool){
+        carpoolRepository.delete(carpool);
+    }
+
+    /*
+    카풀 업로드 관련
+     */
+
+    // 카풀 포스팅 업로드 하기
+    public Carpool createCarpoolPost(CarpoolPostRequest carpoolPostRequest,
+                                                 User writer){
+
+        Carpool carpool = Carpool.builder()
+                .title(carpoolPostRequest.title()) // 제목
+                .content(carpoolPostRequest.content()) // 내용
+                .postedAt(Instant.now()) // 게시 날짜
+                .meetAt(carpoolPostRequest.meetAt()) // 만남 날짜
+                .maxCount(carpoolPostRequest.maxCount()) // 최대 인원
+                .writer(writer) // 작성자
+                .start(carpoolPostRequest.toStart()) // 시작지점
+                .destination(carpoolPostRequest.toDestination()) // 최종지점
+                .spot(carpoolPostRequest.toSpot()) // 중간 지점
+                .build();
+
+        carpoolRepository.save(carpool);
+
+        return carpool;
+
+    }
+
+    // 카풀 포스팅 삭제하기
+    public CarpoolDeleteResponse deleteCarpoolByWriterId(Carpool carpool,Long writerId){
+
+        if((carpool.getWriter().getId().equals(writerId))){
+            deleteCarpool(carpool);
+            return new CarpoolDeleteResponse(
+                    carpool.getId(),
+                    carpool.getWriter().getNickname(),
+                    "해당 포스팅이 삭제되었습니다.");
+        }
+
+        throw new BaseException(BaseExceptionEnum.WRITER_UNMATCHED);
+
+    }
+
+    // 단일 카풀 포스팅 가져오기
+    public CarpoolResponse getCarpoolPost(Long id){
+
+        Carpool carpool = findById(id);
+
+        return new CarpoolResponse(
+                carpool.getWriter().getNickname(), // 작성자
+                carpool.getTitle(), // 제목
+                carpool.getContent(), // 내용
+                CarpoolResponse.getRouteFromCarpool(carpool), // Route
+                CarpoolResponse.getMiddleSpotFromCarpool(carpool), // MiddleSpot
+                carpool.getApplyCount(), // 지원자 수
+                carpool.getMaxCount() // 가능 지원자 수
+        );
+
+    }
+
+
+
+    // 해당 지역의 카풀 포스팅 가져오기
+    public Page<CarpoolResponse> getLocalCarpools(Integer sigunguCode,
+                                                  int page,
+                                                  int size){
+
+        Page<Carpool> result = carpoolRepository.findByWriter_SigunguCode(
+                sigunguCode,
+                PageRequest.of(page, size, Sort.by("postedAt").descending())
+        );
+
+        return result.map(carpool ->
+            new CarpoolResponse(
+                    carpool.getWriter().getNickname(), // 작성자
+                    carpool.getTitle(), // 제목
+                    carpool.getContent(), // 내용
+                    CarpoolResponse.getRouteFromCarpool(carpool), // Route
+                    CarpoolResponse.getMiddleSpotFromCarpool(carpool), // MiddleSpot
+                    carpool.getApplyCount(), // 지원자 수
+                    carpool.getMaxCount() // 가능 지원자 수
+            )
+        );
+    }
+
+    // 자신의 카풀을 가져오는 메소드
+    public MyCarpoolResponse getMyCarpools(Long writerId){
+
+        List<Carpool> carpools = findByWriterId(writerId);
+
+        List<MyCarpoolResponse.MyPost> myPosts = carpools
+                .stream()
+                .map(carpool ->
+                        new MyCarpoolResponse.MyPost(
+                                carpool.getTitle(),
+                                carpool.getPostedAt()))
+                .toList();
+
+        return new MyCarpoolResponse(myPosts);
+    }
+
+
+    /*
+    스팟 추천관련
+     */
+
+    // 근처에 존재하는 하차 스팟 찾기
     public NearBySpot findNearBy (Double lat,
                       Double lng){
 
@@ -88,6 +231,8 @@ public class CarpoolService {
     public Integer evaluateDistanceRisk(Double distance){
         return (distance.intValue())/10;
     }
+
+
 
 
 }
