@@ -1,6 +1,8 @@
 package com.kspo.carefit.damain.user.entity;
 
 import com.kspo.carefit.base.security.oauth2.entity.UserOauth2Token;
+import com.kspo.carefit.damain.apply.entity.Apply;
+import com.kspo.carefit.damain.carpool.entity.Carpool;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -33,14 +35,41 @@ public class User {
     )
     private List<Integer> sportsCode = new ArrayList<>(); // 관심 스포츠 코드
 
+    @OneToMany(mappedBy = "writer",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
+    private List<Carpool> carpools = new ArrayList<>();
+
     @Builder.Default
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
     private List<UserOauth2Token> userOauth2Token = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL,orphanRemoval = true,fetch = FetchType.LAZY)
+    private List<Apply> applies = new ArrayList<>();
+
+    public void addCarpool(Carpool carpool){
+        this.carpools.add(carpool);
+        carpool.setWriter(this);
+    }
 
     public void addUserOauth2Token(UserOauth2Token userOauth2Token){
         this.userOauth2Token.add(userOauth2Token);
         userOauth2Token.setUser(this);
     }
+
+    public void addApply(Apply apply){
+        this.applies.add(apply);
+        apply.setUser(this);
+    }
+
+    public void deleteCarpool(Carpool carpool){
+        this.carpools.remove(carpool);
+        carpool.setWriter(null);
+    }
+
+    public void deleteApply(Apply apply){
+        this.applies.remove(apply);
+        apply.setUser(null);
+    }
+
 
     public void updateUser(String username,
                            String email,

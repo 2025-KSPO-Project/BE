@@ -63,7 +63,7 @@ public class Oauth2UserServiceImpl extends DefaultOAuth2UserService {
     private OAuth2Response checkProvider(String provider, OAuth2User oAuth2User) {
         return switch (provider) {
             case "naver" -> new NaverResponse(oAuth2User.getAttributes());
-            default -> throw new BaseException(BaseExceptionEnum.UNSUPPORTED_PROVIER);
+            default -> throw new BaseException(BaseExceptionEnum.UNSUPPORTED_PROVIDER);
         };
     }
 
