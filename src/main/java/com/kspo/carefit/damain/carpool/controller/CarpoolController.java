@@ -6,6 +6,8 @@ import com.kspo.carefit.damain.carpool.dto.request.CarpoolPostRequest;
 import com.kspo.carefit.damain.carpool.dto.request.SearchFineWayRequest;
 import com.kspo.carefit.damain.carpool.dto.response.*;
 import com.kspo.carefit.damain.carpool.facade.CarpoolFacade;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -15,6 +17,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+@Tag(name = "카풀", description = "카풀 관련 API")
 @RestController
 @RequestMapping("/carpool")
 @RequiredArgsConstructor
@@ -23,7 +26,7 @@ public class CarpoolController {
 
     private final CarpoolFacade carpoolFacade;
 
-    // 목표지점 주변 스팟찾기
+    @Operation(summary = "추천 스팟 조회", description = "목표지점 주변 추천 스팟을 조회합니다.")
     @PostMapping("/recommend")
     public ResponseEntity<ApiResult<RecommendedSpotResponse>> recommendFineSpot
             (@RequestBody SearchFineWayRequest searchFineWayRequest){
@@ -34,7 +37,7 @@ public class CarpoolController {
                                 .findRecommendedSpot(searchFineWayRequest)));
     }
 
-    // 카풀 포스팅 생성하기
+    @Operation(summary = "카풀 생성", description = "새로운 카풀 포스팅을 생성합니다.")
     @PostMapping("/create")
     public ResponseEntity<ApiResult<CarpoolPostResponse>> createCarpool
             (@AuthenticationPrincipal UserDetails userDetails,
@@ -49,7 +52,7 @@ public class CarpoolController {
     }
 
 
-    // 해당 지역의 카풀 포스팅 보여주기
+    @Operation(summary = "지역 카풀 목록 조회", description = "해당 지역의 카풀 포스팅 목록을 조회합니다.")
     @GetMapping("/show/posts/local")
     public ResponseEntity<ApiResult<Page<CarpoolResponse>>> getLocalCarpools
             (@RequestParam int page,
@@ -65,7 +68,7 @@ public class CarpoolController {
                                         size)));
     }
 
-    // 카풀 포스팅 보기
+    @Operation(summary = "카풀 상세 조회", description = "카풀 포스팅 상세 정보를 조회합니다.")
     @GetMapping("/show/post")
     public ResponseEntity<ApiResult<CarpoolResponse>> getPost
             (@RequestParam Long id){
@@ -75,7 +78,7 @@ public class CarpoolController {
                         .success(carpoolFacade
                                 .getCarpoolPost(id)));
     }
-    // 자신의 카풀 포스팅 가져오기
+    @Operation(summary = "내 카풀 목록 조회", description = "자신이 등록한 카풀 포스팅 목록을 조회합니다.")
     @GetMapping("/show/myposts")
     public ResponseEntity<ApiResult<MyCarpoolResponse>> getMyCarpoolPost
             (@AuthenticationPrincipal UserDetails userDetails){
@@ -86,7 +89,7 @@ public class CarpoolController {
                                 .getMyCarpool(userDetails.getUsername())));
     }
 
-    // 카풀 포스팅 삭제하기
+    @Operation(summary = "카풀 삭제", description = "카풀 포스팅을 삭제합니다.")
     @DeleteMapping("/delete")
     public ResponseEntity<ApiResult<CarpoolDeleteResponse>> deleteCarpool
             (@AuthenticationPrincipal UserDetails userDetails,
