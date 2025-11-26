@@ -3,6 +3,7 @@ package com.kspo.carefit.base.client;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kspo.carefit.base.config.app.OpenAIConfig;
+import com.kspo.carefit.domain.exercise.enums.GuideType;
 import com.kspo.carefit.domain.exercise.exception.ExerciseException;
 import com.kspo.carefit.domain.exercise.exception.ExerciseExceptionEnum;
 import com.theokanning.openai.completion.chat.ChatCompletionRequest;
@@ -84,6 +85,57 @@ public class OpenAIClient implements AIClient {
             cleaned = cleaned.substring(0, cleaned.length() - 3);
         }
         return cleaned.trim();
+    }
+
+    @Override
+    public Map<String, String> getExerciseGuide(String prompt, GuideType guideType) {
+        try {
+            String systemPrompt = buildGuideSystemPrompt(guideType);
+
+            ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
+                    .model(openAIConfig.getModel())
+                    .messages(List.of(
+                            new ChatMessage(ChatMessageRole.SYSTEM.value(), systemPrompt),
+                            new ChatMessage(ChatMessageRole.USER.value(), prompt)
+                    ))
+                    .temperature(0.7)
+                    .maxTokens(800)
+                    .build();
+
+            ChatCompletionResult result = openAiService.createChatCompletion(chatCompletionRequest);
+
+            String response = result.getChoices().get(0).getMessage().getContent();
+            log.info("OpenAI Guide API Response: {}", response);
+
+            return parseResponse(response);
+
+        } catch (Exception e) {
+            log.error("OpenAI Guide API 호출 중 오류 발생: {}", e.getMessage(), e);
+            throw new ExerciseException(ExerciseExceptionEnum.LLM_API_ERROR);
+        }
+    }
+
+    private String buildGuideSystemPrompt(GuideType guideType) {
+        return switch (guideType) {
+            case PRE -> """
+                당신은 장애인 체육 전문 코치입니다.
+                사용자의 장애유형, 컨디션, 운동 종목을 고려하여 운동 전 준비사항과 주의사항을 안내해주세요.
+                준비운동, 스트레칭, 장비 점검 등 실질적인 가이드를 제공해주세요.
+                반드시 JSON 형식으로 응답해야 합니다.
+                """;
+            case DURING -> """
+                당신은 장애인 체육 전문 코치입니다.
+                사용자의 장애유형과 운동 종목을 고려하여 운동 중 주의사항을 안내해주세요.
+                적절한 강도 유지, 휴식 타이밍, 자세 교정 등 실질적인 가이드를 제공해주세요.
+                반드시 JSON 형식으로 응답해야 합니다.
+                """;
+            case POST -> """
+                당신은 장애인 체육 전문 코치입니다.
+                사용자의 장애유형과 운동 종목을 고려하여 운동 후 회복 가이드를 안내해주세요.
+                쿨다운 운동, 스트레칭, 수분 섭취, 휴식 등 실질적인 가이드를 제공해주세요.
+                반드시 JSON 형식으로 응답해야 합니다.
+                """;
+        };
     }
 
     @Override

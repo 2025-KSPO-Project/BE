@@ -8,6 +8,7 @@ import com.kspo.carefit.domain.exercise.entity.Exercise;
 import com.kspo.carefit.domain.exercise.entity.ExerciseRecommendation;
 import com.kspo.carefit.domain.exercise.entity.ExerciseSchedule;
 import com.kspo.carefit.domain.exercise.service.ConditionCheckService;
+import com.kspo.carefit.domain.exercise.service.ExerciseGuideService;
 import com.kspo.carefit.domain.exercise.service.ExerciseRecommendationService;
 import com.kspo.carefit.domain.exercise.service.ExerciseScheduleService;
 import com.kspo.carefit.domain.exercise.service.ExerciseService;
@@ -28,6 +29,7 @@ public class ExerciseFacade {
     private final ConditionCheckService conditionCheckService;
     private final ExerciseScheduleService exerciseScheduleService;
     private final ExerciseRecommendationService exerciseRecommendationService;
+    private final ExerciseGuideService exerciseGuideService;
     private final UserService userService;
 
     /**
@@ -281,5 +283,14 @@ public class ExerciseFacade {
         String reason = recommendation.getLlmResponse();
 
         return RecommendExerciseDto.Response.from(recommendation, reason);
+    }
+
+    /**
+     * 운동 가이드 조회 (운동 전/중/후)
+     */
+    @Transactional(readOnly = true)
+    public ExerciseGuideDto.Response getExerciseGuide(String username, ExerciseGuideDto.Request request) {
+        User user = userService.findByUsername(username);
+        return exerciseGuideService.getExerciseGuide(user, request);
     }
 }
