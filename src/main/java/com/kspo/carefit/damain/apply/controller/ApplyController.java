@@ -2,9 +2,11 @@ package com.kspo.carefit.damain.apply.controller;
 
 import com.kspo.carefit.base.config.exception.dto.ApiResult;
 import com.kspo.carefit.damain.apply.dto.request.AddApplyRequest;
+import com.kspo.carefit.damain.apply.dto.request.CheckApplyDuplicationRequest;
 import com.kspo.carefit.damain.apply.dto.request.DeleteApplyRequest;
 import com.kspo.carefit.damain.apply.dto.request.ShowApplyRequest;
 import com.kspo.carefit.damain.apply.dto.response.AddApplyResponse;
+import com.kspo.carefit.damain.apply.dto.response.CheckApplyDuplicationResponse;
 import com.kspo.carefit.damain.apply.dto.response.DeleteApplyResponse;
 import com.kspo.carefit.damain.apply.dto.response.ShowApplyResponse;
 import com.kspo.carefit.damain.apply.facade.ApplyFacade;
@@ -13,6 +15,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "카풀 지원", description = "카풀 지원 관련 API")
@@ -59,6 +63,22 @@ public class ApplyController {
                 .body(ApiResult
                         .success(applyFacade
                                 .showApply(showApplyRequest)));
+
+    }
+
+    @Operation(summary = "지원 여부 조회",description = "해당 회원이 지원한지 여부를 조회합니다.")
+    @GetMapping("/check-duplication")
+    public ResponseEntity<ApiResult<CheckApplyDuplicationResponse>> checkApplyDuplication
+            (@RequestBody CheckApplyDuplicationRequest checkApplyDuplicationRequest,
+             @AuthenticationPrincipal UserDetails userDetails){
+
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(ApiResult
+                        .success(applyFacade
+                                .checkApplyDuplicationResponse(
+                                        checkApplyDuplicationRequest,
+                                        userDetails.getUsername())));
 
     }
 

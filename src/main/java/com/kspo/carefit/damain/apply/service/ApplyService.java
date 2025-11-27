@@ -59,5 +59,11 @@ public class ApplyService {
 
     }
 
+    // 이미 지원한 사용자인지 체크하기
+    public boolean CheckApplyDuplication(Long carpoolId,Long userId){
+
+       return applyRepository.existsByCarpoolIdAndUserId(carpoolId,userId);
+    }
+
 
 }

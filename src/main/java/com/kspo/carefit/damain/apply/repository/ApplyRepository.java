@@ -35,8 +35,7 @@ public interface ApplyRepository extends JpaRepository<Apply,Long> {
 """)
     Optional<Apply> findByUsernameAndPostId(String username, Long postId);
 
-
-
+    boolean existsByCarpoolIdAndUserId(Long carpoolId, Long userId);
 
 
 }

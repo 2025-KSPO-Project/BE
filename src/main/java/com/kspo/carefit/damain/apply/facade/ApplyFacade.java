@@ -1,9 +1,11 @@
 package com.kspo.carefit.damain.apply.facade;
 
 import com.kspo.carefit.damain.apply.dto.request.AddApplyRequest;
+import com.kspo.carefit.damain.apply.dto.request.CheckApplyDuplicationRequest;
 import com.kspo.carefit.damain.apply.dto.request.DeleteApplyRequest;
 import com.kspo.carefit.damain.apply.dto.request.ShowApplyRequest;
 import com.kspo.carefit.damain.apply.dto.response.AddApplyResponse;
+import com.kspo.carefit.damain.apply.dto.response.CheckApplyDuplicationResponse;
 import com.kspo.carefit.damain.apply.dto.response.DeleteApplyResponse;
 import com.kspo.carefit.damain.apply.dto.response.ShowApplyResponse;
 import com.kspo.carefit.damain.apply.entity.Apply;
@@ -23,6 +25,30 @@ public class ApplyFacade {
     private final ApplyService applyService;
     private final UserService userService;
     private final CarpoolService carpoolService;
+
+    @Transactional
+    public CheckApplyDuplicationResponse checkApplyDuplicationResponse
+            (CheckApplyDuplicationRequest checkApplyDuplicationRequest,String username){
+
+        User user = userService
+                .findByUsername(username);
+
+        boolean duplication = applyService.CheckApplyDuplication(checkApplyDuplicationRequest.id(), user.getId());
+
+        if (duplication) {
+            return new CheckApplyDuplicationResponse(
+                    user.getNickname(),
+                    true,
+                    "해당 회원은 이미 지원하였습니다."
+            );
+        }
+
+        return new CheckApplyDuplicationResponse(
+                user.getNickname(),
+                false,
+                "해당 회원은 지원하지 않았습니다."
+        );
+    }
 
     @Transactional
     public AddApplyResponse createApply(AddApplyRequest addApplyRequest){
