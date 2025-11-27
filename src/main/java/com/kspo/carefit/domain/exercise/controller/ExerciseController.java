@@ -195,4 +195,85 @@ public class ExerciseController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResult.success(response));
     }
+
+    @Operation(summary = "운동 가이드 조회", description = "AI를 통해 운동 전/중/후 가이드를 받습니다.")
+    @PostMapping("/guide")
+    public ResponseEntity<ApiResult<ExerciseGuideDto.Response>> getExerciseGuide(
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody ExerciseGuideDto.Request request) {
+
+        ExerciseGuideDto.Response response = exerciseFacade.getExerciseGuide(
+                userDetails.getUsername(),
+                request
+        );
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResult.success(response));
+    }
+
+    @Operation(summary = "운동 전 가이드 조회", description = "AI를 통해 운동 전 준비사항 가이드를 받습니다.")
+    @PostMapping("/guide/pre")
+    public ResponseEntity<ApiResult<ExerciseGuideDto.Response>> getPreExerciseGuide(
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody ExerciseGuideDto.Request request) {
+
+        ExerciseGuideDto.Request preRequest = new ExerciseGuideDto.Request(
+                request.sportName(),
+                request.conditionType(),
+                com.kspo.carefit.domain.exercise.enums.GuideType.PRE,
+                request.additionalNotes()
+        );
+
+        ExerciseGuideDto.Response response = exerciseFacade.getExerciseGuide(
+                userDetails.getUsername(),
+                preRequest
+        );
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResult.success(response));
+    }
+
+    @Operation(summary = "운동 중 가이드 조회", description = "AI를 통해 운동 중 주의사항 가이드를 받습니다.")
+    @PostMapping("/guide/during")
+    public ResponseEntity<ApiResult<ExerciseGuideDto.Response>> getDuringExerciseGuide(
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody ExerciseGuideDto.Request request) {
+
+        ExerciseGuideDto.Request duringRequest = new ExerciseGuideDto.Request(
+                request.sportName(),
+                request.conditionType(),
+                com.kspo.carefit.domain.exercise.enums.GuideType.DURING,
+                request.additionalNotes()
+        );
+
+        ExerciseGuideDto.Response response = exerciseFacade.getExerciseGuide(
+                userDetails.getUsername(),
+                duringRequest
+        );
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResult.success(response));
+    }
+
+    @Operation(summary = "운동 후 가이드 조회", description = "AI를 통해 운동 후 회복 가이드를 받습니다.")
+    @PostMapping("/guide/post")
+    public ResponseEntity<ApiResult<ExerciseGuideDto.Response>> getPostExerciseGuide(
+            @Parameter(hidden = true) @AuthenticationPrincipal UserDetails userDetails,
+            @RequestBody ExerciseGuideDto.Request request) {
+
+        ExerciseGuideDto.Request postRequest = new ExerciseGuideDto.Request(
+                request.sportName(),
+                request.conditionType(),
+                com.kspo.carefit.domain.exercise.enums.GuideType.POST,
+                request.additionalNotes()
+        );
+
+        ExerciseGuideDto.Response response = exerciseFacade.getExerciseGuide(
+                userDetails.getUsername(),
+                postRequest
+        );
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResult.success(response));
+    }
 }
