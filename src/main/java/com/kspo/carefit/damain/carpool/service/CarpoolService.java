@@ -108,6 +108,7 @@ public class CarpoolService {
                 carpool.getWriter().getNickname(), // 작성자
                 carpool.getTitle(), // 제목
                 carpool.getContent(), // 내용
+                carpool.getMeetAt(), // 약속시간
                 CarpoolResponse.getRouteFromCarpool(carpool), // Route
                 CarpoolResponse.getMiddleSpotFromCarpool(carpool), // MiddleSpot
                 carpool.getApplyCount(), // 지원자 수
@@ -132,7 +133,8 @@ public class CarpoolService {
             new CarpoolResponse(
                     carpool.getWriter().getNickname(), // 작성자
                     carpool.getTitle(), // 제목
-                    carpool.getContent(), // 내용
+                    carpool.getContent(), // 글 내용
+                    carpool.getMeetAt(), // 약속시간
                     CarpoolResponse.getRouteFromCarpool(carpool), // Route
                     CarpoolResponse.getMiddleSpotFromCarpool(carpool), // MiddleSpot
                     carpool.getApplyCount(), // 지원자 수

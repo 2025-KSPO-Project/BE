@@ -2,11 +2,13 @@ package com.kspo.carefit.damain.carpool.dto.response;
 
 import com.kspo.carefit.damain.carpool.entity.Carpool;
 
+import java.time.Instant;
 import java.util.List;
 
 public record CarpoolResponse(String writer,
                               String title,
                               String content,
+                              Instant meetAt,
                               Route route,
                               MiddleSpot middleSpot,
                               Integer applyCount,
