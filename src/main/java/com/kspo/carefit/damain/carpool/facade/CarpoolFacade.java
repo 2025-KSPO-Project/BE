@@ -2,6 +2,7 @@ package com.kspo.carefit.damain.carpool.facade;
 
 import com.kspo.carefit.damain.carpool.dto.NearBySpot;
 import com.kspo.carefit.damain.carpool.dto.request.CarpoolPostRequest;
+import com.kspo.carefit.damain.carpool.dto.request.CheckPosterRequest;
 import com.kspo.carefit.damain.carpool.dto.request.GetGradiantRequest;
 import com.kspo.carefit.damain.carpool.dto.request.SearchFineWayRequest;
 import com.kspo.carefit.damain.carpool.dto.response.*;
@@ -58,6 +59,28 @@ public class CarpoolFacade {
         return carpoolService.getMyCarpools(userService
                 .findByUsername(username)
                 .getId());
+
+    }
+
+    @Transactional
+    public CheckPosterResponse checkPoster(CheckPosterRequest checkPosterRequest,
+                                           String username){
+
+        // 먼저 해당 카풀글이 존재하는지 체크
+        Carpool carpool = carpoolService.findById(checkPosterRequest.postId());
+
+        // 카풀 작성자와 해당 사용자의 일치여부 확인
+        boolean checkPoster = carpoolService
+                .checkPoster(
+                        carpool.getId(),
+                        userService.findByUsername(username).getId());
+
+        if(checkPoster){
+            return new CheckPosterResponse(true,"해당 사용자는 작성자가 맞습니다.");
+        }
+        else {
+            return new CheckPosterResponse(false,"해당 사용자는 작성자가 아닙니다.");
+        }
 
     }
 

@@ -53,6 +53,15 @@ public class CarpoolService {
                         new BaseException(BaseExceptionEnum.CARPOOL_NOT_FOUND));
     }
 
+    // 작성자와 사용자의 일치여부 확인하기
+    public boolean checkPoster(Long postId,
+                               Long userId){
+
+        Long posterId = findById(postId).getWriter().getId();
+
+        return posterId.equals(userId);
+    }
+
     // 카풀 객체 삭제하기
     public void deleteCarpool(Carpool carpool){
         carpoolRepository.delete(carpool);

@@ -3,6 +3,7 @@ package com.kspo.carefit.damain.carpool.controller;
 import com.kspo.carefit.base.config.exception.dto.ApiResult;
 import com.kspo.carefit.damain.carpool.dto.request.CarpoolDeleteRequest;
 import com.kspo.carefit.damain.carpool.dto.request.CarpoolPostRequest;
+import com.kspo.carefit.damain.carpool.dto.request.CheckPosterRequest;
 import com.kspo.carefit.damain.carpool.dto.request.SearchFineWayRequest;
 import com.kspo.carefit.damain.carpool.dto.response.*;
 import com.kspo.carefit.damain.carpool.facade.CarpoolFacade;
@@ -87,6 +88,20 @@ public class CarpoolController {
                 .body(ApiResult
                         .success(carpoolFacade
                                 .getMyCarpool(userDetails.getUsername())));
+    }
+
+    @Operation(summary = "카풀 작성자와 일치여부 조회",description = "사용자와 카풀 작성자가 일치하는지 조회합니다.")
+    @GetMapping("/check-poster")
+    public ResponseEntity<ApiResult<CheckPosterResponse>> checkPoster
+            (@RequestBody CheckPosterRequest checkPosterRequest,
+             @AuthenticationPrincipal UserDetails userDetails){
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResult
+                        .success(carpoolFacade
+                                .checkPoster(
+                                        checkPosterRequest,
+                                        userDetails.getUsername())));
     }
 
     @Operation(summary = "카풀 삭제", description = "카풀 포스팅을 삭제합니다.")
