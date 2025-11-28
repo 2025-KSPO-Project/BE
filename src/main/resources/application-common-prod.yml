@@ -22,10 +22,10 @@ spring:
     activate:
       on-profile: common-local
   datasource:
-    url: ${mysql_local_url}
+    url: ${mysql_url}
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: ${mysql_local_username}
-    password: ${mysql_local_password}
+    username: ${mysql_username}
+    password: ${mysql_password}
 
   servlet:
     multipart:
