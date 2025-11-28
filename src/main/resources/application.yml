@@ -2,7 +2,7 @@ spring:
   application:
     name: care-fit
   profiles:
-    active: local
+    active: prod
     group:
       test: common-test
       local: common-local

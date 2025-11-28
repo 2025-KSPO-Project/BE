@@ -1,15 +1,31 @@
 spring:
   jwt:
     secret: ${jwt_secret}
+    access-token-expiration: 86400000 # 1일
+    refresh-token-expiration: 1209600000 # 14일
+
+  ai:
+    provider: openai # 기본 AI 제공자 (openai 또는 gemini)
+
+  openai:
+    api-key: ${openai_api_key:}
+    model: gpt-3.5-turbo
+    timeout: 30000 # 30초
+
+  gemini:
+    api-key: ${gemini_api_key:}
+    model: gemini-1.5-flash
+    api-url: https://generativelanguage.googleapis.com/v1beta/models
+    timeout: 30000 # 30초
 
   config:
     activate:
-      on-profile: common-prod
+      on-profile: common-local
   datasource:
-    url: ${db.url}
+    url: ${mysql_local_url}
     driver-class-name: com.mysql.cj.jdbc.Driver
-    username: ${db.username}
-    password: ${db.password}
+    username: ${mysql_local_username}
+    password: ${mysql_local_password}
 
   servlet:
     multipart:
@@ -41,7 +57,23 @@ spring:
               - email
         provider:
           naver:
-            authorization-uri: ${authorization_uri}
+            authorization-uri: "https://nid.naver.com/oauth2.0/authorize"
             token-uri: ${token_uri}
             user-info-uri: ${user_info_uri}
             user-name-attribute: ${user_attribute_name}
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+    disable-swagger-default-url: true
+    display-request-duration: true
+  packages-to-scan: com.kspo.carefit
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+
+google:
+  key: ${google_api_key} # Google API 키
