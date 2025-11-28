@@ -77,3 +77,6 @@ springdoc:
 
 google:
     key: ${google_api_key} # Google API 키
+
+redirect:
+  url: ${redirect_url}

@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
@@ -33,6 +34,7 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private final CookieUtil cookieUtil;
     private final OAuth2AuthorizedClientService oAuth2AuthorizedClientService;
     private final UserOauth2facade userOauth2facade;
+    @Value("${redirect.url}")private String value;
 
     @Transactional
     @Override
@@ -73,7 +75,7 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
         response.addCookie(cookieUtil.createCookie("Authorization",serviceAccessToken));
         response.addCookie(cookieUtil.createCookie("refresh",serviceRefreshToken));
-        response.sendRedirect("http://localhost:3000/");
+        response.sendRedirect(value);
 
     }
 
