@@ -5,7 +5,8 @@ import java.util.List;
 
 public record MyCarpoolResponse (List<MyPost> postList){
 
-    public record MyPost(String title,
+    public record MyPost(Long id,
+                         String title,
                          Instant postedAt){
 
     }

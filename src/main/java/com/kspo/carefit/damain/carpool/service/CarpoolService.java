@@ -161,6 +161,7 @@ public class CarpoolService {
                 .stream()
                 .map(carpool ->
                         new MyCarpoolResponse.MyPost(
+                                carpool.getId(),
                                 carpool.getTitle(),
                                 carpool.getPostedAt()))
                 .toList();
