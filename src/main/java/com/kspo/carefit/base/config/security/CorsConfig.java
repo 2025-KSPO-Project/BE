@@ -20,7 +20,7 @@ public class CorsConfig {
                 CorsConfiguration configuration = new CorsConfiguration();
 
                 // 허용할 Origin 설정 (프론트엔드 주소)
-                configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
+                configuration.setAllowedOrigins(Collections.singletonList("https://kspo-frontend-pbzl.vercel.app"));
                 // 허용할 HTTP 메서드 설정 (모든 메서드 허용)
                 configuration.setAllowedMethods(Collections.singletonList("*"));
                 // 자격 증명(쿠키 등) 포함 요청 허용 여부
